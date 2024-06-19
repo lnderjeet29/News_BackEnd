@@ -93,6 +93,15 @@ class AuthenticationServicesImpl(
                 )
                 return jwtAuthicationResponse
             }
+        if(user?.isBlocked==true){
+                jwtAuthicationResponse = JwtAuthicationResponse(
+                    Token = "**error**",
+                    email = "your email is blocked, please contact database administrator",
+                    refreshToken = "**error**",
+                    status = false
+                )
+                return jwtAuthicationResponse
+            }
 
             val jwt: String? = jwtServices?.generateToken(user)
             val refreshToken: String? = jwtServices?.generateRefreshToken(HashMap(), user)
