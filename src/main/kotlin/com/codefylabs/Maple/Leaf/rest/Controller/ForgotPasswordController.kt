@@ -73,7 +73,7 @@ val logger= LoggerFactory.getLogger(ForgotPasswordController::class.java)
 
     @PostMapping("/changePassword")
     fun changePasswordHandler(
-        @RequestBody changePassword: ChangePassword,@RequestHeader("Authorization") request:String
+        @RequestParam(name = "password") changePassword: ChangePassword,@RequestHeader("Authorization") request:String
     ): ResponseEntity<String> {
         if (changePassword.password != changePassword.repeatPassword) {
             return ResponseEntity("Please enter the password again...", HttpStatus.EXPECTATION_FAILED)
