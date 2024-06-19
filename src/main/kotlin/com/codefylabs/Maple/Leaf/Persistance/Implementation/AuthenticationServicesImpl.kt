@@ -62,7 +62,7 @@ class AuthenticationServicesImpl(
     }
 
     fun sendVerificationEmail(user: User) {
-        val message = MailBody(user.email,"Email Verification","Click the link to verify your email: http://localhost:8080/api/v1/auth/verify?token=${user.verificationToken}")
+        val message = MailBody(user.email,"Email Verification","Click the link to verify your email: http://cicdmapleloadblancer-1104519167.ap-southeast-2.elb.amazonaws.com/api/v1/auth/verify?token=${user.verificationToken}")
         emailServices.sendSimpleMessage(message)
     }
 
