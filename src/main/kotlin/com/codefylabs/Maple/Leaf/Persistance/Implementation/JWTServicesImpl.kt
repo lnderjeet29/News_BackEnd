@@ -46,7 +46,7 @@ class JWTServicesImpl : JWTServices {
     override fun generateToken(userDetails: UserDetails?): String? {
         return Jwts.builder().setSubject(userDetails?.username)
             .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 24))
+            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 34))
             .signWith(signKey, SignatureAlgorithm.HS256)
             .compact()
     }
@@ -59,7 +59,7 @@ class JWTServicesImpl : JWTServices {
     override fun generateRefreshToken(extraClaims: Map<String?, Any?>?, userDetails: UserDetails?): String? {
         return Jwts.builder().setClaims(extraClaims).setSubject(userDetails?.username)
             .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 29))
+            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 50))
             .signWith(signKey, SignatureAlgorithm.HS256)
             .compact()
     }

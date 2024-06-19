@@ -1,6 +1,7 @@
 package com.codefylabs.Maple.Leaf.persistance
 
 import jakarta.persistence.*
+import lombok.AllArgsConstructor
 import java.util.*
 
 
@@ -9,7 +10,7 @@ import java.util.*
 data class ForgotPassword (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val fid: Int,
+    val fid: Int = 0,  // Default value for Hibernate
 
     @Column(nullable = false)
     val otp: Int,
@@ -18,5 +19,11 @@ data class ForgotPassword (
     val expirationTime: Date,
 
     @OneToOne
-    val user: User?
-)
+    val user: User? = null  // Default null for Hibernate
+) {
+    // Hibernate requires a no-arg constructor
+    constructor() : this(
+        otp = 0,
+        expirationTime = Date()
+    )
+}

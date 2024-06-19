@@ -1,7 +1,7 @@
 package com.codefylabs.Maple.Leaf.persistance.Implementation
 
-import com.codefylabs.Maple.Leaf.business.gateway.EmailServices
 import com.codefylabs.Maple.Leaf.business.gateway.AuthenticationServices
+import com.codefylabs.Maple.Leaf.business.gateway.EmailServices
 import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import com.codefylabs.Maple.Leaf.persistance.Role
 import com.codefylabs.Maple.Leaf.persistance.User
@@ -18,7 +18,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
-import kotlin.jvm.optionals.getOrNull
 import kotlin.random.Random
 
 
