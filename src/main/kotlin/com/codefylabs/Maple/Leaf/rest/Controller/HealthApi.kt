@@ -1,4 +1,4 @@
-package com.codefylabs.CodyfylabsSimpleSecurity.rest.controller
+package com.codefylabs.Maple.Leaf.rest.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping

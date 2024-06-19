@@ -1,7 +1,6 @@
 package com.codefylabs.Maple.Leaf.persistance.Implementation
 
-import com.codefylabs.CodyfylabsSimpleSecurity.business.gateway.EmailServices
-import com.codefylabs.Maple.Leaf.rest.controller.UserController
+import com.codefylabs.Maple.Leaf.business.gateway.EmailServices
 import com.codefylabs.Maple.Leaf.rest.dto.MailBody
 import org.slf4j.LoggerFactory
 import org.springframework.mail.MailException

@@ -1,4 +1,4 @@
-package com.codefylabs.CodyfylabsSimpleSecurity.business.gateway
+package com.codefylabs.Maple.Leaf.business.gateway
 
 import com.codefylabs.Maple.Leaf.rest.dto.MailBody
 

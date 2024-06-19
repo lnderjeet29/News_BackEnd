@@ -38,7 +38,7 @@ class SecurityConfiguration(
                     .requestMatchers("/api/v1/user").hasAuthority(Role.USER.name)
                     .requestMatchers("/api/v1/admin").hasAuthority(Role.ADMIN.name)
                     .anyRequest().authenticated()
-            }.oauth2Login { it.defaultSuccessUrl("/say") }
+            }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticatorFilter, UsernamePasswordAuthenticationFilter::class.java)

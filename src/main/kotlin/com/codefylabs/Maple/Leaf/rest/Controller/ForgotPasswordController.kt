@@ -1,6 +1,6 @@
-package com.codefylabs.CodyfylabsSimpleSecurity.rest.controller
+package com.codefylabs.Maple.Leaf.rest.Controller
 
-import com.codefylabs.CodyfylabsSimpleSecurity.business.gateway.EmailServices
+import com.codefylabs.Maple.Leaf.business.gateway.EmailServices
 import com.codefylabs.Maple.Leaf.business.gateway.ForgotServices
 import com.codefylabs.Maple.Leaf.persistance.ForgotPassword
 import com.codefylabs.Maple.Leaf.persistance.User
@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 import java.util.*
 

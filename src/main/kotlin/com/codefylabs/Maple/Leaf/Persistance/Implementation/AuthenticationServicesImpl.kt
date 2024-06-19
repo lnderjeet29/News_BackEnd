@@ -1,6 +1,6 @@
 package com.codefylabs.Maple.Leaf.persistance.Implementation
 
-import com.codefylabs.CodyfylabsSimpleSecurity.business.gateway.EmailServices
+import com.codefylabs.Maple.Leaf.business.gateway.EmailServices
 import com.codefylabs.Maple.Leaf.business.gateway.AuthenticationServices
 import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import com.codefylabs.Maple.Leaf.persistance.Role
