@@ -34,7 +34,7 @@ class SecurityConfiguration(
         return http.csrf { it.disable() }
             .authorizeHttpRequests { requests ->
                 requests
-                    .requestMatchers("/api/v1/auth/**","/").permitAll()
+                    .requestMatchers("/api/v1/auth/**","/","/api/v1/news/**").permitAll()
                     .requestMatchers("/api/v1/user").hasAuthority(Role.USER.name)
                     .requestMatchers("/api/v1/admin").hasAuthority(Role.ADMIN.name)
                     .anyRequest().authenticated()

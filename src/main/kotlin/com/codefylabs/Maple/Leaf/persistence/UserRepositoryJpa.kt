@@ -1,6 +1,7 @@
 package com.codefylabs.Maple.Leaf.persistance
 
 import jakarta.transaction.Transactional
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -12,6 +13,7 @@ interface UserRepositoryJpa : JpaRepository<User?, Int?> {
     fun findByEmail(email: String?): Optional<User>
     fun findByVerificationToken(token: String): Optional<User>?
     fun findByUserName(username:String?): Optional<List<User>>
+
 
 
 

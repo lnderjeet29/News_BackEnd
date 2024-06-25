@@ -1,4 +1,4 @@
-package com.codefylabs.Maple.Leaf.persistance.Implementation
+package com.codefylabs.Maple.Leaf.persistence.implementation
 
 import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import io.jsonwebtoken.Claims

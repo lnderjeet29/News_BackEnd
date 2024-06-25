@@ -2,17 +2,17 @@ package com.codefylabs.Maple.Leaf.rest.Controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.AdminServices
 import com.codefylabs.Maple.Leaf.persistance.User
-import com.codefylabs.Maple.Leaf.rest.dto.ApiUserMessage
-import com.codefylabs.Maple.Leaf.rest.dto.PageResponse
-import com.codefylabs.Maple.Leaf.rest.dto.UserDto
+import com.codefylabs.Maple.Leaf.rest.dto.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 import java.util.Optional
 
 
@@ -56,9 +56,37 @@ class AdminController (val adminServices:AdminServices){
         }
     }
 
-    @PostMapping("/block_user")
+    @PostMapping("/blockUser")
     fun blockUser(@RequestParam(value = "email") user_email:String): ResponseEntity<Optional<User>> {
         val user: Optional<User>? = adminServices.blockUser(user_email)
         return ResponseEntity(user,HttpStatus.OK)
+    }
+
+    @PostMapping("/uploadNews")
+    fun uploadNewsData(
+//            @RequestParam newsTitle:String?,
+//                       @RequestParam shortDescription:String,
+//                       @RequestParam link:String,
+//                       @RequestParam viewCount:Int,
+//                       @RequestParam likeCount:Int?,
+//                       @RequestParam discussion:String?,
+//                       @RequestParam isTrending:Boolean,
+                       @RequestParam("thumbnail_image") thumbnailImage: MultipartFile,@RequestParam("detail_image") detailImage: MultipartFile): ResponseEntity<String>{
+        try {
+//            val response:String = adminServices.uploadNews( newsTitle,
+//             shortDescription,
+//             link,
+//             viewCount,
+//             likeCount,
+//             discussion,
+//             isTrending,thumbnailImage,detailImage)
+            val response:String =adminServices.uploadNews("demo","demo descr", "demo link", 1,0,"demo discussion",false,thumbnailImage,detailImage)
+            return ResponseEntity(response,HttpStatus.OK)
+        } catch (e: Exception) {
+            print("exception start from here...........................................")
+            print(e.message)
+            return ResponseEntity("upload new data not valid....",HttpStatus.NOT_ACCEPTABLE)
+        }
+
     }
 }

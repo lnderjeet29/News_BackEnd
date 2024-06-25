@@ -1,7 +1,6 @@
 package com.codefylabs.Maple.Leaf.persistance
 
 import jakarta.persistence.*
-import lombok.AllArgsConstructor
 import java.util.*
 
 

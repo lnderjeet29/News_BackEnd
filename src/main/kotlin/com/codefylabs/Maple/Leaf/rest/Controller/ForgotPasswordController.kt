@@ -29,11 +29,11 @@ class ForgotPasswordController(
 ) {
 
 val logger= LoggerFactory.getLogger(ForgotPasswordController::class.java)
-    @PostMapping("/verifyMail")
-    fun verifyEmail(@RequestHeader("Authorization") request: String): ResponseEntity<String> {
-        val email = jwtServices?.extractUserName(request.substring(7))
-            logger.info("this is the name "+email.toString()+" ")
-             val user: User? =userRepository.findByEmail(email)?.orElseThrow { RuntimeException("please provide an valid email...") }
+
+    @PostMapping("/verifyMail/{email}")
+    fun verifyEmail(@PathVariable email: String?): ResponseEntity<String> {
+        val user: User? =
+            userRepository.findByEmail(email)?.orElseThrow { RuntimeException("please provide an valid email...") }
         val otp = OtpGenerator()
         val mailBody: MailBody = MailBody(
             to = email,
@@ -52,9 +52,8 @@ val logger= LoggerFactory.getLogger(ForgotPasswordController::class.java)
     }
 
 
-    @PostMapping("/verifyOtp")
-    fun verifyOtp(@RequestHeader("Authorization") request:String,@RequestParam(value = "otp") otp: Int?): ResponseEntity<String> {
-        val email = jwtServices?.extractUserName(request.substring(7))
+    @PostMapping("/verifyOtp/{otp}/{email}")
+    fun verifyOtp(@PathVariable otp: Int?, @PathVariable email: String): ResponseEntity<String> {
         val user: User? =
             userRepository.findByEmail(email)?.orElseThrow { RuntimeException("please provide an valid email...") }
         val fp: ForgotPassword? = forgotServices.otpFindByOtpAndUser(otp, user)
@@ -71,14 +70,14 @@ val logger= LoggerFactory.getLogger(ForgotPasswordController::class.java)
     }
 
 
-    @PostMapping("/changePassword")
+    @PostMapping("/changePassword/{email}")
     fun changePasswordHandler(
-        @RequestParam(name = "password") changePassword: ChangePassword,@RequestHeader("Authorization") request:String
+        @RequestBody changePassword: ChangePassword,
+        @RequestParam email: String?
     ): ResponseEntity<String> {
         if (changePassword.password != changePassword.repeatPassword) {
             return ResponseEntity("Please enter the password again...", HttpStatus.EXPECTATION_FAILED)
         }
-        val email = jwtServices?.extractUserName(request.substring(7))
         val password = passwordEncoder.encode(changePassword.password)
         userRepository.updatePassword(email, password)
         return ResponseEntity.ok("Password has been changed...")
