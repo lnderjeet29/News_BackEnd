@@ -19,7 +19,7 @@ import java.util.Optional
 @RequestMapping("/api/v1/admin")
 class AdminController (val adminServices:AdminServices){
     var logger = LoggerFactory.getLogger(AdminController::class.java)
-    @GetMapping("/getAllData")
+    @GetMapping("/getAllUser")
     fun getAllData(
         @RequestParam(value = "pageNumber", defaultValue = "0", required = false) pageNumber: Int,
         @RequestParam(value = "pageSize", defaultValue = "2", required = false) pageSize: Int

@@ -68,6 +68,9 @@ class AuthenticationServicesImpl(
     override fun signInWithGoogle(googleUser:GoogleAuthResponseDto): UserSession {
        if(isExists(googleUser.email)){
            val user=userRepository.findByEmail(googleUser.email).get()
+           if (user.isBlocked) {
+               throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
+           }
            when (user.authProvider){
                AuthProvider.GOOGLE -> {
                    val userSession: UserSession
@@ -155,6 +158,7 @@ class AuthenticationServicesImpl(
         val data: User? = try {
             userRepository.save(user)
         } catch (e: Exception) {
+            e.printStackTrace()
             logger.info(user.name + " " + user.email)
             logger.info("exception in saving data")
             logger.info(e.message)
@@ -193,17 +197,19 @@ class AuthenticationServicesImpl(
     override fun signin(signinRequest: SigninRequest?): UserSession? {
 
 
-        val user: User? = userRepository.findByEmail(signinRequest?.email)
+        val user = userRepository.findByEmail(signinRequest?.email)
             .orElseThrow { BadApiRequest("This email is not registered. Please sign up.") }
 
         //check user verified or not
-        if (user?.enabled == false) {
+        if (!user.enabled) {
             throw BadApiRequest("Your email address is not verified.!")
         }
-        if (user?.isBlocked == true) {
+        if (user.isBlocked) {
             throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
         }
-
+        if(user.authProvider==AuthProvider.GOOGLE){
+            throw BadApiRequest("User signed up with this email using Google!")
+        }
         var userSession: UserSession? = null
 
         authenticationManager.authenticate(
@@ -213,21 +219,17 @@ class AuthenticationServicesImpl(
             )
         )
 
-        val jwt: String? = jwtServices?.generateToken(user)
-        val refreshToken: String? = jwtServices?.generateRefreshToken(HashMap(), user)
-        userSession = jwt?.let {
-            refreshToken?.let { it1 ->
-                UserSession(
-                    token = it,
-                    email = user?.email.toString(),
-                    refreshToken = it1,
-                    name = user?.name.toString(),
-                    userId = user?.id.toString().toInt(),
-                    authProvider = user?.authProvider,
-                    profilePicture = "null"
-                )
-            }
-        }
+        val jwt: String = jwtServices.generateToken(user)
+        val refreshToken: String = jwtServices.generateRefreshToken(HashMap(), user)
+        userSession = UserSession(
+            token = jwt,
+            email = user.email.toString(),
+            refreshToken = refreshToken,
+            name = user.name.toString(),
+            userId = user.id.toString().toInt(),
+            authProvider = user.authProvider,
+            profilePicture = user.profilePicture
+        )
 
         return userSession
     }

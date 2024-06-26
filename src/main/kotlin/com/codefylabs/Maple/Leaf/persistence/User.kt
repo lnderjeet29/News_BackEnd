@@ -7,13 +7,12 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 
-@Data
+
 @Entity
-@Builder
-@AllArgsConstructor
 @Table(name = "user_details")
 data class User(
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_Id")
     var id: Int,
 

@@ -37,7 +37,7 @@ class ForgotPasswordController(
             when(e){
                 is BadApiRequest->{
                     e.printStackTrace()
-                    return ResponseEntity(CommonResponse<Nothing>(status = false, message = "Email not found!"),HttpStatus.NOT_FOUND)
+                    return ResponseEntity(CommonResponse<Nothing>(status = false, message = e.message.toString()),HttpStatus.NOT_FOUND)
                 }
                 else->{
                     return ResponseEntity(CommonResponse<Nothing>(status = false, message = "Something went wrong!"),HttpStatus.NOT_FOUND)

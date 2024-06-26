@@ -36,6 +36,7 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
             return ResponseEntity<CommonResponse<String>>(message, HttpStatus.ACCEPTED)
         } catch (e: Exception) {
             logger.info(e.message)
+            e.printStackTrace()
             val message =
                 CommonResponse<String>(message = "credential false...", status = false, data = null)
             return ResponseEntity<CommonResponse<String>>(message, HttpStatus.BAD_REQUEST)
@@ -56,7 +57,7 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
     @PostMapping("/signin")
     fun signIn(@RequestBody signinRequest: SigninRequest?): ResponseEntity<CommonResponse<UserSession>> {
         return try {
-            val response: UserSession? = authentictionSerives?.signin(signinRequest)
+            val response = authentictionSerives.signin(signinRequest)
             val message=
                 CommonResponse<UserSession>(data = response, message = "Login successfully...", status = true)
                 ResponseEntity<CommonResponse<UserSession>>(message, HttpStatus.ACCEPTED)

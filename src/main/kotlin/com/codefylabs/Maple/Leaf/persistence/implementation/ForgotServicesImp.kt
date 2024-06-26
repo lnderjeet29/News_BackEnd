@@ -26,7 +26,12 @@ class ForgotServicesImp(val emailServices: EmailServices,
     override fun sendOtpToEmail(email:String?){
         logger.info(email)
         val user = userRepository.findByEmail(email).orElseThrow{BadApiRequest("Email not found!")}
-
+        if (user.isBlocked) {
+            throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
+        }
+        if (!user.enabled) {
+            throw BadApiRequest("Your email address is not verified.!")
+        }
             val otp = GenerateOtp()
             val mailBody: MailBody = MailBody(
                 to = email,
