@@ -83,7 +83,7 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
     }
 
 
-    @GetMapping("/refresh")
+    @PostMapping("/refresh")
     fun refresh(@RequestHeader("Authorization") request: String): ResponseEntity<ApiRepositoryMesssage?> {
         return try {
             val response: JwtAuthicationResponse? = authentictionSerives?.refreshToken(request.substring(7))
