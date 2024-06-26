@@ -100,7 +100,6 @@ class AuthenticationServicesImpl(
        }else{
            val user =
                User(
-                   id = (Int.MIN_VALUE..Int.MAX_VALUE).random(),
                    email = googleUser.email,
                    name = googleUser.name,
                    role = Role.USER,
@@ -145,7 +144,6 @@ class AuthenticationServicesImpl(
 
         val user =
             User(
-                id = (Int.MIN_VALUE..Int.MAX_VALUE).random(),
                 email = signUpRequest?.email,
                 name = signUpRequest?.name,
                 role = Role.USER,

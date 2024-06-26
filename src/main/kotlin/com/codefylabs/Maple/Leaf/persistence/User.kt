@@ -14,7 +14,7 @@ data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_Id")
-    var id: Int,
+    var id: Int?=null,
 
     @Column(name = "user_name")
     var name: String? = null,
@@ -49,7 +49,7 @@ data class User(
     var profilePicture:String?=null
 
 ) : UserDetails {
-    constructor() : this(id = 0)
+
     override fun getAuthorities(): Collection<GrantedAuthority?>? {
         return null
     }
