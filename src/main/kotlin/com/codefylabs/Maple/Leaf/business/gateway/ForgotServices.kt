@@ -5,7 +5,7 @@ import com.codefylabs.Maple.Leaf.persistance.User
 
 
 interface ForgotServices {
-    fun saveOtp(fp: ForgotPassword)
+    fun sendOtpToEmail(email:String?)
     fun deleteOtpById(fid:Int)
     fun otpFindByOtpAndUser(otp:Int?,user: User?):ForgotPassword?
 }

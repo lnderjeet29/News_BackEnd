@@ -50,7 +50,7 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
 
 
     @PostMapping("/signin")
-    fun signin(@RequestBody signinRequest: SigninRequest?): ResponseEntity<ApiRepositoryMesssage> {
+    fun signIn(@RequestBody signinRequest: SigninRequest?): ResponseEntity<ApiRepositoryMesssage> {
         return try {
             val response: JwtAuthicationResponse? = authentictionSerives?.signin(signinRequest)
             val message: ApiRepositoryMesssage=
@@ -100,7 +100,7 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
 
 
     @GetMapping("/signin-with-google")
-    fun verifyToken(@RequestParam(value = "token") idToken: String): Any {
+    fun verifyToken(@RequestBody idToken: String): Any {
         val userInfo = authentictionSerives.verifyIdToken(idToken)
         return userInfo ?: "Invalid ID token"
     }

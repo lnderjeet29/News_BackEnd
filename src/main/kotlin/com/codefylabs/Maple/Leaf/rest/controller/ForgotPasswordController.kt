@@ -6,8 +6,11 @@ import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import com.codefylabs.Maple.Leaf.persistance.ForgotPassword
 import com.codefylabs.Maple.Leaf.persistance.User
 import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.ChangePassword
+import com.codefylabs.Maple.Leaf.rest.dto.ForgotResponseDto
 import com.codefylabs.Maple.Leaf.rest.dto.MailBody
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,36 +22,35 @@ import java.util.*
 
 
 @RestController
-@RequestMapping("/api/v1/forgotPassword")
+@RequestMapping("/api/v1/forgot-password")
 class ForgotPasswordController(
-    val emailServices: EmailServices,
+
     val forgotServices: ForgotServices,
     val passwordEncoder: PasswordEncoder,
-    val userRepository: UserRepositoryJpa,
-    val jwtServices:JWTServices
+    val userRepository: UserRepositoryJpa
 ) {
 
-val logger= LoggerFactory.getLogger(ForgotPasswordController::class.java)
+    val logger:Logger= LoggerFactory.getLogger(ForgotPasswordController::class.java)
 
-    @PostMapping("/verifyMail/{email}")
-    fun verifyEmail(@PathVariable email: String?): ResponseEntity<String> {
-        val user: User? =
-            userRepository.findByEmail(email)?.orElseThrow { RuntimeException("please provide an valid email...") }
-        val otp = OtpGenerator()
-        val mailBody: MailBody = MailBody(
-            to = email,
-            text = "This is the otp of your account forgot password...$otp",
-            subject = "otp for forgot password request..."
-        )
-        val fp: ForgotPassword = ForgotPassword(
-            fid = user?.id ?: 0,
-            otp = otp,
-            expirationTime = Date(System.currentTimeMillis() + 70 * 1000),
-            user = user
-        )
-        emailServices.sendSimpleMessage(mailBody)
-        forgotServices.saveOtp(fp)
-        return ResponseEntity.ok("Email sent for verification...")
+    @PostMapping("/send-otp")
+    fun forgotPassword(@RequestParam(value = "email") email: String?): ResponseEntity<ForgotResponseDto> {
+        try {
+            forgotServices.sendOtpToEmail(email)
+        } catch (e: Exception) {
+            when(e){
+                is BadApiRequest->{
+                    e.printStackTrace()
+                    return ResponseEntity(ForgotResponseDto(status = false, message = "Email not found!"),HttpStatus.NOT_FOUND)
+                }
+                else->{
+                    return ResponseEntity(ForgotResponseDto(status = false, message = "Something went wrong!"),HttpStatus.NOT_FOUND)
+                }
+            }
+
+        }
+
+        val message=ForgotResponseDto(status = true, message = "OTP send to email.")
+        return ResponseEntity.ok(message)
     }
 
 
@@ -83,9 +85,6 @@ val logger= LoggerFactory.getLogger(ForgotPasswordController::class.java)
         return ResponseEntity.ok("Password has been changed...")
     }
 
-    private fun OtpGenerator(): Int {
-        val random = Random()
-        return random.nextInt(100000, 999999)
-    }
+
 }
 
