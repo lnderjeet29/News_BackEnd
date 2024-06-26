@@ -27,7 +27,7 @@ class ForgotServicesImp(val emailServices: EmailServices,
         logger.info(email)
         val user = userRepository.findByEmail(email).orElseThrow{BadApiRequest("Email not found!")}
 
-            val otp = generateOtp()
+            val otp = GenerateOtp()
             val mailBody: MailBody = MailBody(
                 to = email,
                 text = "Here is your OTP for account password reset: $otp",
@@ -39,20 +39,21 @@ class ForgotServicesImp(val emailServices: EmailServices,
                 expirationTime = Date(System.currentTimeMillis() + 70 * 1000),
                 user = user
             )
-            try {
-                val us=forgotPasswordRepository.findByUser(fp.user)
-                if(us!=null){
-                    forgotPasswordRepository.deleteById(us.get().fid)
-                }
-                emailServices.sendSimpleMessage(mailBody)
-                forgotPasswordRepository.save(fp)
-            } catch (e: Exception) {
-                throw RuntimeException("Fail to send or save email!")
+        emailServices.sendSimpleMessage(mailBody)
+        try {
+            forgotPasswordRepository.save(fp)
+        } catch (e: Exception) {
+            val u: Optional<ForgotPassword> = forgotPasswordRepository.findByUser(fp.user)
+
+            if (u != null) {
+                forgotPasswordRepository.deleteById(u.get().fid)
             }
+            forgotPasswordRepository.save(fp)
+        }
 
     }
 
-    private fun generateOtp(): Int {
+    private fun GenerateOtp(): Int {
         val random = Random()
         return random.nextInt(100000, 999999)
     }
