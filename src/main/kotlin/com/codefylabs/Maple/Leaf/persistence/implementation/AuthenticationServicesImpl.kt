@@ -10,8 +10,10 @@ import com.codefylabs.Maple.Leaf.persistence.AuthProviders
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.*
 import com.google.gson.Gson
+import com.google.gson.JsonParser
 import lombok.RequiredArgsConstructor
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -19,8 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.random.Random
-import okhttp3.Request
-import com.google.gson.JsonParser
 
 
 @Service
@@ -78,7 +78,7 @@ class AuthenticationServicesImpl(
         val data: User? = try {
             userRepository.save(user)
         } catch (e: Exception) {
-            logger.info(user.name+" "+user.email)
+            logger.info(user.name + " " + user.email)
             logger.info("exception in saving data")
             logger.info(e.message)
             return null
@@ -88,93 +88,90 @@ class AuthenticationServicesImpl(
     }
 
 
-
     override fun isExists(email: String?): Boolean {
         val user: Optional<User> = userRepository.findByEmail(email)
-        if(!user.isPresent)return false
+        if (!user.isPresent) return false
 
         return true
     }
 
 
-
     fun sendVerificationEmail(user: User) {
-        val message = MailBody(user.email,"Email Verification","Click the link to verify your email: https://mapleleaf.codefy-testing.com/api/v1/auth/verify?token=${user.verificationToken}")
+        val message = MailBody(
+            user.email,
+            "Email Verification",
+            "Click the link to verify your email: https://mapleleaf.codefy-testing.com/api/v1/auth/verify?token=${user.verificationToken}"
+        )
         emailServices.sendSimpleMessage(message)
     }
 
 
-
     override fun verifyUser(token: String): Boolean {
         val user = userRepository.findByVerificationToken(token) ?: return false
-        user.get().enabled=true
-        user.get().verificationToken=null
+        user.get().enabled = true
+        user.get().verificationToken = null
         userRepository.save(user.get())
         return true
     }
 
 
-
     override fun signin(signinRequest: SigninRequest?): JwtAuthicationResponse? {
+
+
+        val user: User? = userRepository.findByEmail(signinRequest?.email)
+            .orElseThrow { BadApiRequest("This email is not registered. Please sign up.") }
+
+        //check user verified or not
+        if (user?.enabled == false) {
+            throw BadApiRequest("Your email address is not verified.!")
+        }
+        if (user?.isBlocked == true) {
+            throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
+        }
+
         var jwtAuthicationResponse: JwtAuthicationResponse? = null
-            authenticationManager!!.authenticate(
-                UsernamePasswordAuthenticationToken(
-                    signinRequest?.email,
-                    signinRequest?.password
-                )
+
+        authenticationManager.authenticate(
+            UsernamePasswordAuthenticationToken(
+                signinRequest?.email,
+                signinRequest?.password
             )
-            val user: User? = userRepository?.findByEmail(signinRequest?.email)
-                ?.orElseThrow { BadApiRequest("Invalid email or password") }
+        )
 
-            //check user verified or not
-            if(user?.enabled==false){
-                jwtAuthicationResponse = JwtAuthicationResponse(
-                    Token = "**error**",
-                    email = "not verified",
-                    refreshToken = "**error**",
-                    status = false
+        val jwt: String? = jwtServices?.generateToken(user)
+        val refreshToken: String? = jwtServices?.generateRefreshToken(HashMap(), user)
+        jwtAuthicationResponse = jwt?.let {
+            refreshToken?.let { it1 ->
+                JwtAuthicationResponse(
+                    token = it,
+                    email = user?.email.toString(),
+                    refreshToken = it1,
+                    name = user?.name.toString(),
+                    userId = user?.id.toString().toInt(),
+                    authProvider = user?.authProvider,
+                    profilePicture = "null"
                 )
-                return jwtAuthicationResponse
             }
-        if(user?.isBlocked==true){
-                jwtAuthicationResponse = JwtAuthicationResponse(
-                    Token = "**error**",
-                    email = "your email is blocked, please contact database administrator",
-                    refreshToken = "**error**",
-                    status = false
-                )
-                return jwtAuthicationResponse
-            }
-
-            val jwt: String? = jwtServices?.generateToken(user)
-            val refreshToken: String? = jwtServices?.generateRefreshToken(HashMap(), user)
-            jwtAuthicationResponse = jwt?.let {
-                refreshToken?.let { it1 ->
-                    JwtAuthicationResponse(
-                        Token = it,
-                        email = user?.email.toString(),
-                        refreshToken = it1,
-                        status = true
-                    )
-                }
-            }
+        }
 
         return jwtAuthicationResponse
     }
 
 
-
     override fun refreshToken(refreshToken: String?): JwtAuthicationResponse? {
         val userEmail: String? = jwtServices?.extractUserName(refreshToken)
-        val user: User? = userRepository?.findByEmail(userEmail)?.orElseThrow()
+        val user: User? = userRepository?.findByEmail(userEmail)?.orElseThrow{BadApiRequest("User not found!")}
         if (jwtServices?.isTokenValid(refreshToken, user) == true) {
             val jwt: String? = jwtServices.generateToken(user)
             val jwtAuthicationResponse = userEmail?.let {
                 JwtAuthicationResponse(
-                    Token = jwt.toString(),
+                    token = jwt.toString(),
                     email = it,
                     refreshToken = refreshToken.toString(),
-                    status = true
+                    name = user?.name.toString(),
+                    userId = user?.id.toString().toInt(),
+                    authProvider = user?.authProvider,
+                    profilePicture = "null"
                 )
             }
             return jwtAuthicationResponse

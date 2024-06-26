@@ -2,10 +2,12 @@ package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.AuthenticationServices
 import com.codefylabs.Maple.Leaf.persistance.User
+import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
@@ -51,20 +53,32 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
     fun signin(@RequestBody signinRequest: SigninRequest?): ResponseEntity<ApiRepositoryMesssage> {
         return try {
             val response: JwtAuthicationResponse? = authentictionSerives?.signin(signinRequest)
-            val messsage: ApiRepositoryMesssage
-            if (response?.status == true) {
-                messsage =
-                    ApiRepositoryMesssage(response = response, message = "Login successfully...", status = true)
-                ResponseEntity<ApiRepositoryMesssage>(messsage, HttpStatus.ACCEPTED)
-            } else {
-                messsage =
-                    ApiRepositoryMesssage(response = response, message = "Oops something went wrong", status = false)
-                ResponseEntity<ApiRepositoryMesssage>(messsage, HttpStatus.BAD_REQUEST)
-            }
+            val message: ApiRepositoryMesssage=
+                    ApiRepositoryMesssage(data = response, message = "Login successfully...", status = true)
+                ResponseEntity<ApiRepositoryMesssage>(message, HttpStatus.ACCEPTED)
+
         } catch (e: Exception) {
-            val message: ApiRepositoryMesssage =
-                ApiRepositoryMesssage(response = null, message = "something went wrong...", status = false)
-            ResponseEntity<ApiRepositoryMesssage>(message, HttpStatus.BAD_REQUEST)
+            when(e)
+            {
+                is BadApiRequest->{
+                    val message: ApiRepositoryMesssage =
+                        ApiRepositoryMesssage(data = null, message = e.message.toString(), status = false)
+                    ResponseEntity<ApiRepositoryMesssage>(message, HttpStatus.BAD_REQUEST)
+
+                }
+                is BadCredentialsException->{
+                    val message: ApiRepositoryMesssage =
+                        ApiRepositoryMesssage(data = null, message = "Invalid Password!", status = false)
+                    ResponseEntity<ApiRepositoryMesssage>(message, HttpStatus.BAD_REQUEST)
+                }
+                else->
+                {
+                    val message: ApiRepositoryMesssage =
+                        ApiRepositoryMesssage(data = null, message = e.message  ?: "Something went wrong!", status = false)
+                    ResponseEntity<ApiRepositoryMesssage>(message, HttpStatus.BAD_REQUEST)
+                }
+            }
+
         }
     }
 
@@ -74,11 +88,11 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
         return try {
             val response: JwtAuthicationResponse? = authentictionSerives?.refreshToken(request.substring(7))
             ResponseEntity.ok(
-                ApiRepositoryMesssage(response = response, message = "successful", status = true)
+                ApiRepositoryMesssage(data = response, message = "successful", status = true)
             )
         } catch (e: Exception) {
             ResponseEntity.badRequest()
-                .body(ApiRepositoryMesssage(response = null, message = "something went wrong...", status = false))
+                .body(ApiRepositoryMesssage(data = null, message = "something went wrong...", status = false))
         }
     }
 
