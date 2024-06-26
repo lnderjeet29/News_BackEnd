@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class RestController {
-    @GetMapping("/say")
+    @GetMapping("/test")
     fun say():String{
         return "hello, welcome to codefylabs..."
     }

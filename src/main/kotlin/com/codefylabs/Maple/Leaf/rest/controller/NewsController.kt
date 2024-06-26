@@ -15,9 +15,9 @@ import java.util.Optional
 
 @RestController
 @RequestMapping("/api/v1/news")
-class NewController(val newsServices: NewsServices) {
+class NewsController(val newsServices: NewsServices) {
 
-    val logger:Logger=LoggerFactory.getLogger(NewController::class.java)
+    val logger:Logger=LoggerFactory.getLogger(NewsController::class.java)
     @GetMapping("/getNews")
     fun getNews(@RequestParam(value = "id") id:String): Optional<News> {
 
