@@ -5,8 +5,8 @@ import com.codefylabs.Maple.Leaf.persistance.ForgotPassword
 import com.codefylabs.Maple.Leaf.persistance.User
 import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
-import com.codefylabs.Maple.Leaf.rest.dto.ChangePassword
-import com.codefylabs.Maple.Leaf.rest.dto.ForgotResponseDto
+import com.codefylabs.Maple.Leaf.rest.dto.auth.ChangePassword
+import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -30,29 +30,29 @@ class ForgotPasswordController(
     val logger:Logger= LoggerFactory.getLogger(ForgotPasswordController::class.java)
 
     @PostMapping("/send-otp")
-    fun forgotPassword(@RequestParam(value = "email") email: String?): ResponseEntity<ForgotResponseDto> {
+    fun forgotPassword(@RequestParam(value = "email") email: String?): ResponseEntity<CommonResponse<Nothing>> {
         try {
             forgotServices.sendOtpToEmail(email)
         } catch (e: Exception) {
             when(e){
                 is BadApiRequest->{
                     e.printStackTrace()
-                    return ResponseEntity(ForgotResponseDto(status = false, message = "Email not found!"),HttpStatus.NOT_FOUND)
+                    return ResponseEntity(CommonResponse<Nothing>(status = false, message = "Email not found!"),HttpStatus.NOT_FOUND)
                 }
                 else->{
-                    return ResponseEntity(ForgotResponseDto(status = false, message = "Something went wrong!"),HttpStatus.NOT_FOUND)
+                    return ResponseEntity(CommonResponse<Nothing>(status = false, message = "Something went wrong!"),HttpStatus.NOT_FOUND)
                 }
             }
 
         }
 
-        val message=ForgotResponseDto(status = true, message = "OTP send to email.")
+        val message=CommonResponse<Nothing>(status = true, message = "OTP sent to email.")
         return ResponseEntity.ok(message)
     }
 
 
     @PostMapping("/reset")
-    fun verifyOtp(@RequestBody changePassword: ChangePassword): ResponseEntity<ForgotResponseDto> {
+    fun verifyOtp(@RequestBody changePassword: ChangePassword): ResponseEntity<CommonResponse<Nothing>> {
         val user: User? =
             userRepository.findByEmail(changePassword.email)?.orElseThrow { RuntimeException("please provide an valid email...") }
         val fp: ForgotPassword? = forgotServices.otpFindByOtpAndUser(changePassword.otp, user)
@@ -61,14 +61,14 @@ class ForgotPasswordController(
                 forgotServices.deleteOtpById(fp.fid)
             }
 
-            val message=ForgotResponseDto(status = false, message = "Otp has expired...")
+            val message=CommonResponse<Nothing>(status = false, message = "Otp has expired...")
             return ResponseEntity(message,HttpStatus.EXPECTATION_FAILED)
         }
         if (fp != null) {
             forgotServices.deleteOtpById(fp.fid)
         }
         changePasswordHandler(changePassword.password,changePassword.email)
-        val message=ForgotResponseDto(status = true, message = "Password changed successfully")
+        val message=CommonResponse<Nothing>(status = true, message = "Password changed successfully")
         return ResponseEntity.ok(message)
     }
 

@@ -4,6 +4,10 @@ import com.codefylabs.Maple.Leaf.business.gateway.AuthenticationServices
 import com.codefylabs.Maple.Leaf.persistance.User
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.*
+import com.codefylabs.Maple.Leaf.rest.dto.auth.SignInWithGoogleRequest
+import com.codefylabs.Maple.Leaf.rest.dto.auth.SignUpRequest
+import com.codefylabs.Maple.Leaf.rest.dto.auth.SigninRequest
+import com.codefylabs.Maple.Leaf.rest.dto.auth.UserSession
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -20,21 +24,21 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
 
 
     @PostMapping("/signup")
-    fun signup(@RequestBody signUpRequest: SignUpRequest?): ResponseEntity<ApiUserMessage> {
+    fun signup(@RequestBody signUpRequest: SignUpRequest?): ResponseEntity<CommonResponse<String>> {
         try {
             if (authentictionSerives.isExists(signUpRequest?.email)) {
-                val message: ApiUserMessage =
-                    ApiUserMessage(message = "user already exists...", status = false, data = null)
-                return ResponseEntity<ApiUserMessage>(message, HttpStatus.CONFLICT)
+                val message =
+                    CommonResponse<String>(message = "user already exists...", status = false, data = null)
+                return ResponseEntity<CommonResponse<String>>(message, HttpStatus.CONFLICT)
             }
             val user: User? = authentictionSerives?.signup(signUpRequest)
-            val message = ApiUserMessage(data = null, message = ("A verification email has been sent to your email address."), status = true)
-            return ResponseEntity<ApiUserMessage>(message, HttpStatus.ACCEPTED)
+            val message = CommonResponse<String>(data = null, message = ("A verification email has been sent to your email address."), status = true)
+            return ResponseEntity<CommonResponse<String>>(message, HttpStatus.ACCEPTED)
         } catch (e: Exception) {
             logger.info(e.message)
-            val message: ApiUserMessage =
-                ApiUserMessage(message = "credential false...", status = false, data = null)
-            return ResponseEntity<ApiUserMessage>(message, HttpStatus.BAD_REQUEST)
+            val message =
+                CommonResponse<String>(message = "credential false...", status = false, data = null)
+            return ResponseEntity<CommonResponse<String>>(message, HttpStatus.BAD_REQUEST)
         }
     }
 
@@ -50,32 +54,32 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
 
 
     @PostMapping("/signin")
-    fun signIn(@RequestBody signinRequest: SigninRequest?): ResponseEntity<ApiRepositoryMesssage> {
+    fun signIn(@RequestBody signinRequest: SigninRequest?): ResponseEntity<CommonResponse<UserSession>> {
         return try {
-            val response: JwtAuthicationResponse? = authentictionSerives?.signin(signinRequest)
-            val message: ApiRepositoryMesssage=
-                    ApiRepositoryMesssage(data = response, message = "Login successfully...", status = true)
-                ResponseEntity<ApiRepositoryMesssage>(message, HttpStatus.ACCEPTED)
+            val response: UserSession? = authentictionSerives?.signin(signinRequest)
+            val message=
+                CommonResponse<UserSession>(data = response, message = "Login successfully...", status = true)
+                ResponseEntity<CommonResponse<UserSession>>(message, HttpStatus.ACCEPTED)
 
         } catch (e: Exception) {
             when(e)
             {
                 is BadApiRequest->{
-                    val message: ApiRepositoryMesssage =
-                        ApiRepositoryMesssage(data = null, message = e.message.toString(), status = false)
-                    ResponseEntity<ApiRepositoryMesssage>(message, HttpStatus.BAD_REQUEST)
+                    val message=
+                        CommonResponse<UserSession>(data = null, message = e.message.toString(), status = false)
+                    ResponseEntity<CommonResponse<UserSession>>(message, HttpStatus.BAD_REQUEST)
 
                 }
                 is BadCredentialsException->{
-                    val message: ApiRepositoryMesssage =
-                        ApiRepositoryMesssage(data = null, message = "Invalid Password!", status = false)
-                    ResponseEntity<ApiRepositoryMesssage>(message, HttpStatus.BAD_REQUEST)
+                    val message =
+                        CommonResponse<UserSession>(data = null, message = "Invalid Password!", status = false)
+                    ResponseEntity<CommonResponse<UserSession>>(message, HttpStatus.BAD_REQUEST)
                 }
                 else->
                 {
-                    val message: ApiRepositoryMesssage =
-                        ApiRepositoryMesssage(data = null, message = e.message  ?: "Something went wrong!", status = false)
-                    ResponseEntity<ApiRepositoryMesssage>(message, HttpStatus.BAD_REQUEST)
+                    val message =
+                        CommonResponse<UserSession>(data = null, message = e.message  ?: "Something went wrong!", status = false)
+                    ResponseEntity<CommonResponse<UserSession>>(message, HttpStatus.BAD_REQUEST)
                 }
             }
 
@@ -84,25 +88,39 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
 
 
     @PostMapping("/refresh")
-    fun refresh(@RequestHeader("Authorization") request: String): ResponseEntity<ApiRepositoryMesssage?> {
+    fun refresh(@RequestHeader("Authorization") request: String): ResponseEntity<CommonResponse<UserSession>?> {
         return try {
-            val response: JwtAuthicationResponse? = authentictionSerives?.refreshToken(request.substring(7))
+            val response: UserSession? = authentictionSerives?.refreshToken(request.substring(7))
             ResponseEntity.ok(
-                ApiRepositoryMesssage(data = response, message = "successful", status = true)
+                CommonResponse<UserSession>(data = response, message = "successful", status = true)
             )
         } catch (e: Exception) {
             ResponseEntity.badRequest()
-                .body(ApiRepositoryMesssage(data = null, message = "something went wrong...", status = false))
+                .body(CommonResponse<UserSession>(data = null, message = "something went wrong...", status = false))
         }
     }
 
 
 
 
-    @GetMapping("/signin-with-google")
-    fun verifyToken(@RequestBody idToken: String): Any {
-        val userInfo = authentictionSerives.verifyIdToken(idToken)
-        return userInfo ?: "Invalid ID token"
+    @PostMapping("/signin-with-google")
+    fun signInWithGoogle(@RequestBody request:SignInWithGoogleRequest): ResponseEntity<CommonResponse<UserSession>> {
+        val googleUser = authentictionSerives.verifyGoogleIdToken(request.idToken)
+            ?: return ResponseEntity.badRequest().body(CommonResponse(message = "Unable to authenticate this account!", status = false, data = null))
+        if(!googleUser.email_verified){
+            return ResponseEntity.badRequest().body(CommonResponse(message = "Account is not verified!", status = false, data = null))
+        }
+        return try {
+            val userSession= authentictionSerives.signInWithGoogle(googleUser)
+            ResponseEntity.ok().body(CommonResponse(message = "Signed in successfully", status = true,data = userSession))
+        }catch (e:BadApiRequest){
+            e.printStackTrace()
+            ResponseEntity.badRequest().body(CommonResponse(message = e.message?:"Something went wrong", status = false,data = null))
+        }catch (e:Exception){
+            e.printStackTrace()
+            ResponseEntity.badRequest().body(CommonResponse(message = "Something went wrong", status = false,data = null))
+        }
+
     }
 
 }

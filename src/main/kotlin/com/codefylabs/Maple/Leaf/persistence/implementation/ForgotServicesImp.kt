@@ -8,7 +8,7 @@ import com.codefylabs.Maple.Leaf.persistance.ForgotPasswordRepository
 import com.codefylabs.Maple.Leaf.persistance.User
 import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
-import com.codefylabs.Maple.Leaf.rest.dto.MailBody
+import com.codefylabs.Maple.Leaf.rest.dto.others.MailBody
 import lombok.RequiredArgsConstructor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

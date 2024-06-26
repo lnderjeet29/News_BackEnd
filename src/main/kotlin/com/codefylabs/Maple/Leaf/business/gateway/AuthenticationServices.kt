@@ -2,11 +2,11 @@ package com.codefylabs.Maple.Leaf.business.gateway
 
 
 
-import com.codefylabs.Maple.Leaf.rest.dto.SignUpRequest
-import com.codefylabs.Maple.Leaf.rest.dto.SigninRequest
+import com.codefylabs.Maple.Leaf.rest.dto.auth.SignUpRequest
+import com.codefylabs.Maple.Leaf.rest.dto.auth.SigninRequest
 import com.codefylabs.Maple.Leaf.persistance.User
-import com.codefylabs.Maple.Leaf.rest.dto.GoogleAuthResponseDto
-import com.codefylabs.Maple.Leaf.rest.dto.JwtAuthicationResponse
+import com.codefylabs.Maple.Leaf.rest.dto.auth.GoogleAuthResponseDto
+import com.codefylabs.Maple.Leaf.rest.dto.auth.UserSession
 import org.springframework.transaction.annotation.Transactional
 
 
@@ -15,8 +15,9 @@ interface AuthenticationServices {
     fun signup(signUpRequest: SignUpRequest?): User?
     fun isExists(email: String?): Boolean
     fun verifyUser(token: String): Boolean
-    fun signin(signinRequest: SigninRequest?): JwtAuthicationResponse?
-    fun refreshToken(refreshToken: String?): JwtAuthicationResponse?
+    fun signin(signinRequest: SigninRequest?): UserSession?
+    fun refreshToken(refreshToken: String?): UserSession?
 
-    fun verifyIdToken(idToken: String): GoogleAuthResponseDto?
+    fun signInWithGoogle(googleUser:GoogleAuthResponseDto):UserSession?
+    fun verifyGoogleIdToken(idToken: String): GoogleAuthResponseDto?
 }

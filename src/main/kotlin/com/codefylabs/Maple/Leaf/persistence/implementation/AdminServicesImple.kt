@@ -6,7 +6,7 @@ import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.persistence.News
 import com.codefylabs.Maple.Leaf.persistence.NewsRepositoryJPA
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
-import com.codefylabs.Maple.Leaf.rest.dto.PageResponse
+import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.UserDto
 import com.codefylabs.Maple.Leaf.rest.helper.PageHelper.getPageResponse
 import org.slf4j.Logger
@@ -32,7 +32,7 @@ class AdminServicesImpl(val userRepository: UserRepositoryJpa,val newsRepository
         return userRepository.findByName(username).orElseThrow{BadApiRequest("user not found...")}
     }
 
-    override fun getAllData(pageNumber: Int, pageSize: Int): PageResponse<UserDto> {
+    override fun getAllData(pageNumber: Int, pageSize: Int): PaginatedResponse<UserDto> {
         val pageable: Pageable = PageRequest.of(pageNumber, pageSize)
         val page: Page<User?> = userRepository.findAll(pageable)
         return getPageResponse(page, UserDto::class.java)

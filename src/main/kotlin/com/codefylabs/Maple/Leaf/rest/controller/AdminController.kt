@@ -23,24 +23,24 @@ class AdminController (val adminServices:AdminServices){
     fun getAllData(
         @RequestParam(value = "pageNumber", defaultValue = "0", required = false) pageNumber: Int,
         @RequestParam(value = "pageSize", defaultValue = "2", required = false) pageSize: Int
-    ): ResponseEntity<PageResponse<UserDto>> {
-        val pageResponse: PageResponse<UserDto> =
+    ): ResponseEntity<PaginatedResponse<UserDto>> {
+        val paginatedResponse: PaginatedResponse<UserDto> =
             adminServices.getAllData(pageNumber, pageSize)
-        return ResponseEntity<PageResponse<UserDto>>(pageResponse, HttpStatus.OK)
+        return ResponseEntity<PaginatedResponse<UserDto>>(paginatedResponse, HttpStatus.OK)
     }
 
     @GetMapping("/searchByEmail")
-    fun searchByEmail(@RequestParam(value= "Email")email: String?): ResponseEntity<ApiUserMessage>{
+    fun searchByEmail(@RequestParam(value= "Email")email: String?): ResponseEntity<CommonResponse<User>>{
         try {
 
             val user :User=adminServices.searchByUserEmail(email)
 
-            val response: ApiUserMessage =
-                ApiUserMessage(message = "user detail found..", status = true, data =user )
+            val response =
+                CommonResponse(message = "user detail found..", status = true, data =user )
            return  ResponseEntity(response,HttpStatus.OK)
         } catch (e: Exception) {
-            val response: ApiUserMessage =
-                ApiUserMessage(message = "user not found..", status = false, data = null)
+            val response =
+                CommonResponse<User>(message = "user not found..", status = false, data = null)
             return ResponseEntity(response,HttpStatus.NOT_FOUND)
         }
     }

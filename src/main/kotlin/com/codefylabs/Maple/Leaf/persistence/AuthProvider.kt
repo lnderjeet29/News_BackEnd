@@ -1,5 +1,5 @@
 package com.codefylabs.Maple.Leaf.persistence
 
-enum class AuthProviders {
+enum class AuthProvider {
     EMAIL_PASSWORD,GOOGLE
 }

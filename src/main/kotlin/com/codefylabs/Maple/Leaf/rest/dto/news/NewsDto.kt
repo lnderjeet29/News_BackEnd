@@ -1,4 +1,4 @@
-package com.codefylabs.Maple.Leaf.rest.dto
+package com.codefylabs.Maple.Leaf.rest.dto.news
 
 data class NewsDto (
         var newId:String,

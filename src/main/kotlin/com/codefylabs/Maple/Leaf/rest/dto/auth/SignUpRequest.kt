@@ -1,4 +1,4 @@
-package com.codefylabs.Maple.Leaf.rest.dto;
+package com.codefylabs.Maple.Leaf.rest.dto.auth;
 
 data class SignUpRequest (
     var name:String,

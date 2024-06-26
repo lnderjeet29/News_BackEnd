@@ -1,6 +1,6 @@
 package com.codefylabs.Maple.Leaf.persistance
 
-import com.codefylabs.Maple.Leaf.persistence.AuthProviders
+import com.codefylabs.Maple.Leaf.persistence.AuthProvider
 import jakarta.persistence.*
 import lombok.*
 import org.springframework.security.core.GrantedAuthority
@@ -44,7 +44,10 @@ data class User(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "auth_provider")
-    var authProvider:AuthProviders?=null
+    var authProvider:AuthProvider?=null,
+
+    @Column(name="profile_picture")
+    var profilePicture:String?=null
 
 ) : UserDetails {
     constructor() : this(id = 0)

@@ -1,6 +1,7 @@
 package com.codefylabs.Maple.Leaf.rest.dto
 
 import com.codefylabs.Maple.Leaf.persistance.Role
+import com.codefylabs.Maple.Leaf.persistence.AuthProvider
 
 data class UserDto(
     var id: Int?=null,
@@ -12,4 +13,5 @@ data class UserDto(
     var forRest: Boolean= false,
     var isBlocked: Boolean = false,
     var role: Role? = null,
+    var authProvider: AuthProvider?=null
 )

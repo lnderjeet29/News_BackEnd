@@ -6,9 +6,13 @@ import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import com.codefylabs.Maple.Leaf.persistance.Role
 import com.codefylabs.Maple.Leaf.persistance.User
 import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
-import com.codefylabs.Maple.Leaf.persistence.AuthProviders
+import com.codefylabs.Maple.Leaf.persistence.AuthProvider
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
-import com.codefylabs.Maple.Leaf.rest.dto.*
+import com.codefylabs.Maple.Leaf.rest.dto.auth.GoogleAuthResponseDto
+import com.codefylabs.Maple.Leaf.rest.dto.auth.SignUpRequest
+import com.codefylabs.Maple.Leaf.rest.dto.auth.SigninRequest
+import com.codefylabs.Maple.Leaf.rest.dto.auth.UserSession
+import com.codefylabs.Maple.Leaf.rest.dto.others.MailBody
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import lombok.RequiredArgsConstructor
@@ -33,7 +37,7 @@ class AuthenticationServicesImpl(
 
 
     var logger = LoggerFactory.getLogger(AuthenticationServicesImpl::class.java)
-    override fun verifyIdToken(idToken: String): GoogleAuthResponseDto? {
+    override fun verifyGoogleIdToken(idToken: String): GoogleAuthResponseDto? {
         val client = OkHttpClient()
         val url = "https://oauth2.googleapis.com/tokeninfo?id_token=$idToken"
 
@@ -52,6 +56,7 @@ class AuthenticationServicesImpl(
                 val jsonElement = JsonParser.parseString(responseBody)
                 val jsonObject = jsonElement.asJsonObject
 
+
                 return Gson().fromJson(jsonObject, GoogleAuthResponseDto::class.java)
             }
 
@@ -60,19 +65,91 @@ class AuthenticationServicesImpl(
         }
     }
 
+    override fun signInWithGoogle(googleUser:GoogleAuthResponseDto): UserSession {
+       if(isExists(googleUser.email)){
+           val user=userRepository.findByEmail(googleUser.email).get()
+           when (user.authProvider){
+               AuthProvider.GOOGLE -> {
+                   val userSession: UserSession
+
+
+                   val jwt: String = jwtServices.generateToken(user)
+                   val refreshToken: String = jwtServices.generateRefreshToken(HashMap(), user)
+                   userSession =  UserSession(
+                       token = jwt,
+                       email = user.email.toString(),
+                       refreshToken = refreshToken,
+                       name = user.name.toString(),
+                       userId = user.id.toString().toInt(),
+                       authProvider = user.authProvider,
+                       profilePicture = user.profilePicture
+                   )
+
+                   return userSession
+               }
+               AuthProvider.EMAIL_PASSWORD -> {
+                   throw BadApiRequest("Account is registered with email and password")
+               }
+               null -> {
+                   throw BadApiRequest("Something went wrong!")
+               }
+           }
+       }else{
+           val user =
+               User(
+                   id = (Int.MIN_VALUE..Int.MAX_VALUE).random(),
+                   email = googleUser.email,
+                   name = googleUser.name,
+                   role = Role.USER,
+                   enabled = true,
+                   verificationToken = null,
+                   password = null,
+                   authProvider = AuthProvider.GOOGLE,
+                   profilePicture = googleUser.picture
+               )
+
+           try {
+               userRepository.save(user)
+               val userSession: UserSession
+
+
+
+               val jwt: String = jwtServices.generateToken(user)
+               val refreshToken: String = jwtServices.generateRefreshToken(HashMap(), user)
+               userSession =  UserSession(
+                   token = jwt,
+                   email = user.email.toString(),
+                   refreshToken = refreshToken,
+                   name = user.name.toString(),
+                   userId = user.id.toString().toInt(),
+                   authProvider = user.authProvider,
+                   profilePicture = user.profilePicture
+               )
+
+               return userSession
+           } catch (e: Exception) {
+               logger.info(user.name + " " + user.email)
+               logger.info("exception in saving data")
+               logger.info(e.message)
+               throw BadApiRequest(e.message ?: "Issue while creating your account.!")
+           }
+
+       }
+    }
+
 
     override fun signup(signUpRequest: SignUpRequest?): User? {
 
         val user =
             User(
-                id = Random.nextInt(100_00, 999_99),
+                id = (Int.MIN_VALUE..Int.MAX_VALUE).random(),
                 email = signUpRequest?.email,
                 name = signUpRequest?.name,
                 role = Role.USER,
                 enabled = false,
                 verificationToken = UUID.randomUUID().toString(),
-                password = passwordEncoder!!.encode(signUpRequest?.password),
-                authProvider = AuthProviders.EMAIL_PASSWORD
+                password = passwordEncoder.encode(signUpRequest?.password),
+                authProvider = AuthProvider.EMAIL_PASSWORD
             )
 
         val data: User? = try {
@@ -90,9 +167,7 @@ class AuthenticationServicesImpl(
 
     override fun isExists(email: String?): Boolean {
         val user: Optional<User> = userRepository.findByEmail(email)
-        if (!user.isPresent) return false
-
-        return true
+        return user.isPresent
     }
 
 
@@ -115,7 +190,7 @@ class AuthenticationServicesImpl(
     }
 
 
-    override fun signin(signinRequest: SigninRequest?): JwtAuthicationResponse? {
+    override fun signin(signinRequest: SigninRequest?): UserSession? {
 
 
         val user: User? = userRepository.findByEmail(signinRequest?.email)
@@ -129,7 +204,7 @@ class AuthenticationServicesImpl(
             throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
         }
 
-        var jwtAuthicationResponse: JwtAuthicationResponse? = null
+        var userSession: UserSession? = null
 
         authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(
@@ -140,9 +215,9 @@ class AuthenticationServicesImpl(
 
         val jwt: String? = jwtServices?.generateToken(user)
         val refreshToken: String? = jwtServices?.generateRefreshToken(HashMap(), user)
-        jwtAuthicationResponse = jwt?.let {
+        userSession = jwt?.let {
             refreshToken?.let { it1 ->
-                JwtAuthicationResponse(
+                UserSession(
                     token = it,
                     email = user?.email.toString(),
                     refreshToken = it1,
@@ -154,17 +229,17 @@ class AuthenticationServicesImpl(
             }
         }
 
-        return jwtAuthicationResponse
+        return userSession
     }
 
 
-    override fun refreshToken(refreshToken: String?): JwtAuthicationResponse? {
+    override fun refreshToken(refreshToken: String?): UserSession? {
         val userEmail: String? = jwtServices?.extractUserName(refreshToken)
         val user: User? = userRepository?.findByEmail(userEmail)?.orElseThrow{BadApiRequest("User not found!")}
         if (jwtServices?.isTokenValid(refreshToken, user) == true) {
             val jwt: String? = jwtServices.generateToken(user)
-            val jwtAuthicationResponse = userEmail?.let {
-                JwtAuthicationResponse(
+            val userSession = userEmail?.let {
+                UserSession(
                     token = jwt.toString(),
                     email = it,
                     refreshToken = refreshToken.toString(),
@@ -174,10 +249,12 @@ class AuthenticationServicesImpl(
                     profilePicture = "null"
                 )
             }
-            return jwtAuthicationResponse
+            return userSession
         }
         return null
     }
+
+
 
 }
 
