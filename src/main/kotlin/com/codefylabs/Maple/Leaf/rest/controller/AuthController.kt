@@ -1,14 +1,14 @@
-package com.codefylabs.Maple.Leaf.rest.Controller
+package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.AuthenticationServices
 import com.codefylabs.Maple.Leaf.persistance.User
-import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.rest.dto.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -22,16 +22,16 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
         try {
             if (authentictionSerives.isExists(signUpRequest?.email)) {
                 val message: ApiUserMessage =
-                    ApiUserMessage(message = "user already exists...", status = false, response = null)
+                    ApiUserMessage(message = "user already exists...", status = false, data = null)
                 return ResponseEntity<ApiUserMessage>(message, HttpStatus.CONFLICT)
             }
             val user: User? = authentictionSerives?.signup(signUpRequest)
-            val message = ApiUserMessage(response = user, message = ("user sign up successfully..."), status = true)
+            val message = ApiUserMessage(data = null, message = ("A verification email has been sent to your email address."), status = true)
             return ResponseEntity<ApiUserMessage>(message, HttpStatus.ACCEPTED)
         } catch (e: Exception) {
             logger.info(e.message)
             val message: ApiUserMessage =
-                ApiUserMessage(message = "credential false...", status = false, response = null)
+                ApiUserMessage(message = "credential false...", status = false, data = null)
             return ResponseEntity<ApiUserMessage>(message, HttpStatus.BAD_REQUEST)
         }
     }
@@ -82,5 +82,13 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
         }
     }
 
-}
 
+
+
+    @GetMapping("/signin-with-google")
+    fun verifyToken(@RequestParam(value = "token") idToken: String): Any {
+        val userInfo = authentictionSerives.verifyIdToken(idToken)
+        return userInfo ?: "Invalid ID token"
+    }
+
+}

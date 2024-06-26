@@ -1,5 +1,6 @@
 package com.codefylabs.Maple.Leaf.persistance
 
+import com.codefylabs.Maple.Leaf.persistence.AuthProviders
 import jakarta.persistence.*
 import lombok.*
 import org.springframework.security.core.GrantedAuthority
@@ -17,7 +18,7 @@ data class User(
     var id: Int,
 
     @Column(name = "user_name")
-    var userName: String? = null,
+    var name: String? = null,
 
     @Column(name = "user_password")
     private var password: String? = null,
@@ -40,6 +41,11 @@ data class User(
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     var role: Role? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider")
+    var authProvider:AuthProviders?=null
+
 ) : UserDetails {
     constructor() : this(id = 0)
     override fun getAuthorities(): Collection<GrantedAuthority?>? {

@@ -1,4 +1,4 @@
-package com.codefylabs.Maple.Leaf.rest.Controller
+package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.AdminServices
 import com.codefylabs.Maple.Leaf.persistance.User
@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -37,11 +36,11 @@ class AdminController (val adminServices:AdminServices){
             val user :User=adminServices.searchByUserEmail(email)
 
             val response: ApiUserMessage =
-                ApiUserMessage(message = "user detail found..", status = true, response =user )
+                ApiUserMessage(message = "user detail found..", status = true, data =user )
            return  ResponseEntity(response,HttpStatus.OK)
         } catch (e: Exception) {
             val response: ApiUserMessage =
-                ApiUserMessage(message = "user not found..", status = false, response = null)
+                ApiUserMessage(message = "user not found..", status = false, data = null)
             return ResponseEntity(response,HttpStatus.NOT_FOUND)
         }
     }

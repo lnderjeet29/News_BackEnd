@@ -29,7 +29,7 @@ class AdminServicesImpl(val userRepository: UserRepositoryJpa,val newsRepository
     }
 
     override fun searchByUsername(username: String?): List<User>? {
-        return userRepository.findByUserName(username).orElseThrow{BadApiRequest("user not found...")}
+        return userRepository.findByName(username).orElseThrow{BadApiRequest("user not found...")}
     }
 
     override fun getAllData(pageNumber: Int, pageSize: Int): PageResponse<UserDto> {

@@ -6,12 +6,12 @@ import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import com.codefylabs.Maple.Leaf.persistance.Role
 import com.codefylabs.Maple.Leaf.persistance.User
 import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.persistence.AuthProviders
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
-import com.codefylabs.Maple.Leaf.rest.dto.JwtAuthicationResponse
-import com.codefylabs.Maple.Leaf.rest.dto.MailBody
-import com.codefylabs.Maple.Leaf.rest.dto.SignUpRequest
-import com.codefylabs.Maple.Leaf.rest.dto.SigninRequest
+import com.codefylabs.Maple.Leaf.rest.dto.*
+import com.google.gson.Gson
 import lombok.RequiredArgsConstructor
+import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -19,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.random.Random
+import okhttp3.Request
+import com.google.gson.JsonParser
 
 
 @Service
@@ -28,30 +30,64 @@ class AuthenticationServicesImpl(
     val jwtServices: JWTServices, val authenticationManager: AuthenticationManager,
     val emailServices: EmailServices,
 ) : AuthenticationServices {
+
+
     var logger = LoggerFactory.getLogger(AuthenticationServicesImpl::class.java)
+    override fun verifyIdToken(idToken: String): GoogleAuthResponseDto? {
+        val client = OkHttpClient()
+        val url = "https://oauth2.googleapis.com/tokeninfo?id_token=$idToken"
+
+        val request = Request.Builder()
+            .url(url)
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                println("Request failed: ${response.code}")
+                return null
+            }
+
+            val responseBody = response.body?.string()
+            if (responseBody != null) {
+                val jsonElement = JsonParser.parseString(responseBody)
+                val jsonObject = jsonElement.asJsonObject
+
+                return Gson().fromJson(jsonObject, GoogleAuthResponseDto::class.java)
+            }
+
+            println("Response body is null")
+            return null
+        }
+    }
+
+
     override fun signup(signUpRequest: SignUpRequest?): User? {
 
         val user =
             User(
                 id = Random.nextInt(100_00, 999_99),
                 email = signUpRequest?.email,
-                userName = signUpRequest?.user_name,
+                name = signUpRequest?.name,
                 role = Role.USER,
                 enabled = false,
                 verificationToken = UUID.randomUUID().toString(),
-                password = passwordEncoder!!.encode(signUpRequest?.password)
+                password = passwordEncoder!!.encode(signUpRequest?.password),
+                authProvider = AuthProviders.EMAIL_PASSWORD
             )
-            sendVerificationEmail(user)
+
         val data: User? = try {
             userRepository.save(user)
         } catch (e: Exception) {
-            logger.info(user.userName+" "+user.email)
+            logger.info(user.name+" "+user.email)
             logger.info("exception in saving data")
             logger.info(e.message)
             return null
         }
+        sendVerificationEmail(user)
         return data
     }
+
+
 
     override fun isExists(email: String?): Boolean {
         val user: Optional<User> = userRepository.findByEmail(email)
@@ -60,10 +96,14 @@ class AuthenticationServicesImpl(
         return true
     }
 
+
+
     fun sendVerificationEmail(user: User) {
-        val message = MailBody(user.email,"Email Verification","Click the link to verify your email: http://cicdmapleloadblancer-1104519167.ap-southeast-2.elb.amazonaws.com/api/v1/auth/verify?token=${user.verificationToken}")
+        val message = MailBody(user.email,"Email Verification","Click the link to verify your email: https://mapleleaf.codefy-testing.com/api/v1/auth/verify?token=${user.verificationToken}")
         emailServices.sendSimpleMessage(message)
     }
+
+
 
     override fun verifyUser(token: String): Boolean {
         val user = userRepository.findByVerificationToken(token) ?: return false
@@ -72,6 +112,9 @@ class AuthenticationServicesImpl(
         userRepository.save(user.get())
         return true
     }
+
+
+
     override fun signin(signinRequest: SigninRequest?): JwtAuthicationResponse? {
         var jwtAuthicationResponse: JwtAuthicationResponse? = null
             authenticationManager!!.authenticate(
@@ -118,6 +161,7 @@ class AuthenticationServicesImpl(
 
         return jwtAuthicationResponse
     }
+
 
 
     override fun refreshToken(refreshToken: String?): JwtAuthicationResponse? {

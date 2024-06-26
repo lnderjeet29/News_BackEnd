@@ -1,4 +1,4 @@
-package com.codefylabs.Maple.Leaf.rest.Controller
+package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.NewsServices
 import com.codefylabs.Maple.Leaf.persistence.News

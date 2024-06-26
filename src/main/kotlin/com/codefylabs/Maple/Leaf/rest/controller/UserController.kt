@@ -27,13 +27,13 @@ class UserController(val Jwt: JWTServices, val userServices: UserServices) {
         try {
             username = Jwt?.extractUserName(token.substring(7))
             val response: ApiUserMessage =
-                ApiUserMessage(response = userServices?.findUser(username), message = "user details", status = true)
+                ApiUserMessage(data = userServices?.findUser(username), message = "user details", status = true)
             return ResponseEntity(response, HttpStatus.OK)
         } catch (e: Exception) {
             e.printStackTrace()
         }
         val response: ApiUserMessage =
-            ApiUserMessage(message = "user detail not found..", status = false, response = null)
+            ApiUserMessage(message = "user detail not found..", status = false, data = null)
         return ResponseEntity<ApiUserMessage?>(response, HttpStatus.NOT_FOUND)
     }
 }

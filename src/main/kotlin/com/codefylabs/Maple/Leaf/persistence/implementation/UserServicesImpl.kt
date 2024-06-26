@@ -20,8 +20,8 @@ class UserServicesImpl(val userRepository: UserRepositoryJpa) : UserServices {
         }
     }
 
-    override fun findUser(username: String?): User? {
-        return userRepository?.findByEmail(username)
+    override fun findUser(email: String?): User? {
+        return userRepository?.findByEmail(email)
             ?.orElseThrow { BadApiRequest("user not found...") }
     }
 }
