@@ -19,7 +19,7 @@ import java.util.*
 
 
 @RestController
-@RequestMapping("/forgotPassword")
+@RequestMapping("/api/v1/forgotPassword")
 class ForgotPasswordController(
     val emailServices: EmailServices,
     val forgotServices: ForgotServices,
