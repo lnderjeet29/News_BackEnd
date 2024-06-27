@@ -206,7 +206,7 @@ class AuthenticationServicesImpl(
             throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
         }
         if(user.authProvider==AuthProvider.GOOGLE){
-            throw BadApiRequest("User signed up with this email using Google!")
+            throw BadApiRequest("This email is connected to Google Sign-In. Please continue with Google.")
         }
         var userSession: UserSession? = null
 
