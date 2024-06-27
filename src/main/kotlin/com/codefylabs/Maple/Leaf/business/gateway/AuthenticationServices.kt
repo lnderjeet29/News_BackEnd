@@ -20,4 +20,6 @@ interface AuthenticationServices {
 
     fun signInWithGoogle(googleUser:GoogleAuthResponseDto):UserSession?
     fun verifyGoogleIdToken(idToken: String): GoogleAuthResponseDto?
+
+    fun changePassword(newPassword: String?,oldPassword:String?, email:String?): String
 }

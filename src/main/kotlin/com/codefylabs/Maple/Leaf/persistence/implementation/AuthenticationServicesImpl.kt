@@ -20,6 +20,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -254,7 +255,26 @@ class AuthenticationServicesImpl(
         return null
     }
 
+    override fun changePassword(newPassword: String?,oldPassword:String?,email: String?): String {
+        val user = userRepository.findByEmail(email).get()
+        if (user.isBlocked) {
+            throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
+        }
+        if (user.authProvider=== AuthProvider.GOOGLE) {
+            throw BadApiRequest("Cannot change password for Google Sign-In email.")
+        }
 
+        if (!passwordEncoder.matches(oldPassword, user.password)) {
+            throw BadCredentialsException("Incorrect old password.")
+        }
+        try{
+            val password = passwordEncoder.encode(newPassword)
+            userRepository.updatePassword(email, password)
+        } catch (e: Exception) {
+            throw BadApiRequest("Error occurred during password change.!")
+        }
+        return "Password changed successfully."
+    }
 
 }
 

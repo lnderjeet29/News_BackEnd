@@ -7,6 +7,7 @@ import com.codefylabs.Maple.Leaf.persistance.ForgotPassword
 import com.codefylabs.Maple.Leaf.persistance.ForgotPasswordRepository
 import com.codefylabs.Maple.Leaf.persistance.User
 import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.persistence.AuthProvider
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.others.MailBody
 import lombok.RequiredArgsConstructor
@@ -32,6 +33,9 @@ class ForgotServicesImp(val emailServices: EmailServices,
         if (!user.enabled) {
             throw BadApiRequest("Your email address is not verified.!")
         }
+        if (user.authProvider===AuthProvider.GOOGLE) {
+            throw BadApiRequest("This email is connected to Google Sign-In. Please continue with Google.")
+        }
             val otp = GenerateOtp()
             val mailBody: MailBody = MailBody(
                 to = email,
@@ -41,7 +45,7 @@ class ForgotServicesImp(val emailServices: EmailServices,
             val fp: ForgotPassword = ForgotPassword(
                 fid = user?.id ?: 0,
                 otp = otp,
-                expirationTime = Date(System.currentTimeMillis() + 70 * 1000),
+                expirationTime = Date(System.currentTimeMillis() + 10 * 60 * 1000),
                 user = user
             )
         emailServices.sendSimpleMessage(mailBody)
@@ -50,9 +54,7 @@ class ForgotServicesImp(val emailServices: EmailServices,
         } catch (e: Exception) {
             val u: Optional<ForgotPassword> = forgotPasswordRepository.findByUser(fp.user)
 
-            if (u != null) {
-                forgotPasswordRepository.deleteById(u.get().fid)
-            }
+            forgotPasswordRepository.deleteById(u.get().fid)
             forgotPasswordRepository.save(fp)
         }
 

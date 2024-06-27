@@ -1,6 +1,7 @@
 package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.AuthenticationServices
+import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import com.codefylabs.Maple.Leaf.persistance.User
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.*
@@ -8,6 +9,7 @@ import com.codefylabs.Maple.Leaf.rest.dto.auth.SignInWithGoogleRequest
 import com.codefylabs.Maple.Leaf.rest.dto.auth.SignUpRequest
 import com.codefylabs.Maple.Leaf.rest.dto.auth.SigninRequest
 import com.codefylabs.Maple.Leaf.rest.dto.auth.UserSession
+import com.codefylabs.Maple.Leaf.rest.dto.user.ChangePasswordRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,7 +20,7 @@ import java.util.*
 
 @RestController
 @RequestMapping("/api/v1/auth")
-class AuthController(val authentictionSerives: AuthenticationServices) {
+class AuthController(val authentictionSerives: AuthenticationServices, val jwtServices:JWTServices) {
 
     var logger = LoggerFactory.getLogger(AuthController::class.java)
 
@@ -122,6 +124,27 @@ class AuthController(val authentictionSerives: AuthenticationServices) {
             ResponseEntity.badRequest().body(CommonResponse(message = "Something went wrong", status = false,data = null))
         }
 
+    }
+
+
+    @PutMapping("/change-password")
+    fun changePassword(@RequestHeader(name = "Authorization") token: String,@RequestBody changePasswordRequest: ChangePasswordRequest):ResponseEntity<CommonResponse<Nothing>>{
+        try {
+            val email = jwtServices.extractUserName(token.substring(7))
+
+            val message= authentictionSerives.changePassword(newPassword = changePasswordRequest.newPassword, oldPassword = changePasswordRequest.oldPassword, email)
+            return ResponseEntity.ok().body(CommonResponse(message = message,status = true))
+
+        }catch (e:Exception){
+            when (e){
+                is BadCredentialsException->{
+                    return ResponseEntity.badRequest().body(CommonResponse(message = "incorrect old password.!" , status = false))
+                }else->{
+                return ResponseEntity.badRequest().body(CommonResponse(message = e.message.toString() , status = false))
+            }
+            }
+
+        }
     }
 
 }
