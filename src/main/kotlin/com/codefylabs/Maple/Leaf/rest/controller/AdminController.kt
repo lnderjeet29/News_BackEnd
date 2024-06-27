@@ -64,7 +64,7 @@ class AdminController (val adminServices:AdminServices){
     @PostMapping("/uploadNews")
     fun uploadNewsData(
 //            @RequestParam newsTitle:String?,
-//                       @RequestParam shortDescription:String,
+//                       @RequestParam shortDescription:String,(add description)
 //                       @RequestParam link:String,
 //                       @RequestParam viewCount:Int,
 //                       @RequestParam likeCount:Int?,
