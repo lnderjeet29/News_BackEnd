@@ -22,11 +22,13 @@ class AdminController (val adminServices:AdminServices){
     @GetMapping("/getAllUser")
     fun getAllData(
         @RequestParam(value = "pageNumber", defaultValue = "0", required = false) pageNumber: Int,
-        @RequestParam(value = "pageSize", defaultValue = "2", required = false) pageSize: Int
-    ): ResponseEntity<PaginatedResponse<UserDto>> {
-        val paginatedResponse: PaginatedResponse<UserDto> =
-            adminServices.getAllData(pageNumber, pageSize)
-        return ResponseEntity<PaginatedResponse<UserDto>>(paginatedResponse, HttpStatus.OK)
+        @RequestParam(value = "pageSize", defaultValue = "3", required = false) pageSize: Int
+    ): ResponseEntity<CommonResponse<PaginatedResponse<UserDto>>> {
+
+            val paginatedResponse: PaginatedResponse<UserDto> =
+                adminServices.getAllData(pageNumber, pageSize)
+            val commonResponse=CommonResponse(message = "All user retrieved successfully" , status = true,data = paginatedResponse)
+            return ResponseEntity(commonResponse, HttpStatus.OK)
     }
 
     @GetMapping("/searchByEmail")

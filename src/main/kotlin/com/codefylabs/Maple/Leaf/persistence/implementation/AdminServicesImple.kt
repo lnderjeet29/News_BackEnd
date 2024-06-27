@@ -3,8 +3,8 @@ package com.codefylabs.Maple.Leaf.persistence.implementation
 import com.codefylabs.Maple.Leaf.business.gateway.AdminServices
 import com.codefylabs.Maple.Leaf.persistance.User
 import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
-import com.codefylabs.Maple.Leaf.persistence.News
-import com.codefylabs.Maple.Leaf.persistence.NewsRepositoryJPA
+//import com.codefylabs.Maple.Leaf.persistence.News
+//import com.codefylabs.Maple.Leaf.persistence.NewsRepositoryJPA
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.UserDto
@@ -21,7 +21,7 @@ import java.util.*
 import kotlin.random.Random
 
 @Service
-class AdminServicesImpl(val userRepository: UserRepositoryJpa,val newsRepositoryJPA: NewsRepositoryJPA) : AdminServices {
+class AdminServicesImpl(val userRepository: UserRepositoryJpa) : AdminServices {
     val logger:Logger = LoggerFactory.getLogger(AdminServicesImpl::class.java)
     override fun searchByUserEmail(email: String?): User {
 
@@ -47,7 +47,7 @@ class AdminServicesImpl(val userRepository: UserRepositoryJpa,val newsRepository
         }
         return user
     }
-    @Transactional
+//    @Transactional
     override fun uploadNews(
                            newsTitle:String?,
                              shortDescription:String,
@@ -58,14 +58,14 @@ class AdminServicesImpl(val userRepository: UserRepositoryJpa,val newsRepository
                              isTrending:Boolean,thumbnailImage: MultipartFile, detailImage: MultipartFile,
     ): String {
         logger.info("admin service run...")
-            val image = News(newsId = Random.nextInt(100_00, 999_99).toString(),
-                newsTitle = newsTitle, shortDescription = shortDescription, thumbnailImage = thumbnailImage.bytes,
-                detailImage = detailImage.bytes, link = link, likeCount = likeCount, isTrending = isTrending, viewCount = viewCount,
-                discussion = discussion
-            )
-        logger.info("admin servicerss add image to variable ....")
-            newsRepositoryJPA.save(image)
-        logger.info("save successfully...")
+//            val image = News(newsId = Random.nextInt(100_00, 999_99).toString(),
+//                newsTitle = newsTitle, shortDescription = shortDescription, thumbnailImage = thumbnailImage.bytes,
+//                detailImage = detailImage.bytes, link = link, likeCount = likeCount, isTrending = isTrending, viewCount = viewCount,
+//                discussion = discussion
+//            )
+//        logger.info("admin servicerss add image to variable ....")
+//            newsRepositoryJPA.save(image)
+//        logger.info("save successfully...")
             return "successfully upload the news data..."
     }
 }

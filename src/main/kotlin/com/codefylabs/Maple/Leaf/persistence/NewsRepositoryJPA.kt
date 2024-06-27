@@ -4,10 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.Optional
 
-@Repository
-interface NewsRepositoryJPA: JpaRepository<News, String> {
-
-    fun findByNewsId(newsId: String): Optional<News>
-
-//    fun findByIsTrending():
-}
+//@Repository
+//interface NewsRepositoryJPA: JpaRepository<News, Int> {
+//
+////    fun findById(Id: String): Optional<News>
+//
+////    fun findByIsTrending():
+//}
