@@ -8,9 +8,9 @@ import java.util.*
 
 interface AdminServices {
     fun searchByUserEmail(email: String?): User
-    fun searchByUsername(email: String?): List<User>?
+    fun searchByName(email: String?): List<User>?
     fun getAllData(pageNumber: Int, pageSize: Int): PaginatedResponse<UserDto>
-    fun blockUser(email: String):Optional<User>?
+    fun blockUser(email: String): User
 
    fun uploadNews(
                             newsTitle:String?,

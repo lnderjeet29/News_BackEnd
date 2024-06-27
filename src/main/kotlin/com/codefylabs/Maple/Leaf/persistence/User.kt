@@ -2,10 +2,9 @@ package com.codefylabs.Maple.Leaf.persistance
 
 import com.codefylabs.Maple.Leaf.persistence.AuthProvider
 import jakarta.persistence.*
-import lombok.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
-
+import java.time.LocalDate
 
 
 @Entity
@@ -14,7 +13,7 @@ data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_Id")
-    var id: Int?=null,
+    var id: Int?=0,
 
     @Column(name = "user_name")
     var name: String? = null,
@@ -31,11 +30,14 @@ data class User(
     @Column(name = "verification_token")
     var verificationToken: String? = null,
 
-    @Column(name = "forceRest")
-    var forRest: Boolean= false,
+    @Column(name = "forceReset")
+    var forceReset: Boolean? = false,
 
     @Column(name = "isBlocked")
     var isBlocked: Boolean = false,
+
+    @Column(name="date")
+    var date: LocalDate?,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
@@ -49,6 +51,9 @@ data class User(
     var profilePicture:String?=null
 
 ) : UserDetails {
+    constructor() : this(
+        id=0, date = LocalDate.now()
+    )
 
     override fun getAuthorities(): Collection<GrantedAuthority?>? {
         return null

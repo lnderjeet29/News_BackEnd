@@ -15,10 +15,8 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
-import kotlin.random.Random
 
 @Service
 class AdminServicesImpl(val userRepository: UserRepositoryJpa) : AdminServices {
@@ -28,8 +26,8 @@ class AdminServicesImpl(val userRepository: UserRepositoryJpa) : AdminServices {
         return userRepository.findByEmail(email).orElseThrow { BadApiRequest("user not found...") }
     }
 
-    override fun searchByUsername(username: String?): List<User>? {
-        return userRepository.findByName(username).orElseThrow{BadApiRequest("user not found...")}
+    override fun searchByName(name: String?): List<User>? {
+        return userRepository.findByName(name).orElseThrow{BadApiRequest("user not found...")}
     }
 
     override fun getAllData(pageNumber: Int, pageSize: Int): PaginatedResponse<UserDto> {
@@ -38,13 +36,11 @@ class AdminServicesImpl(val userRepository: UserRepositoryJpa) : AdminServices {
         return getPageResponse(page, UserDto::class.java)
     }
 
-    override fun blockUser(email: String): Optional<User>? {
-        val user: Optional<User>? = userRepository.findByEmail(email)
+    override fun blockUser(email: String): User {
+        val user: User = userRepository.findByEmail(email).orElseThrow{BadApiRequest("user not founded.!")}
 
-        if (user != null) {
-            user.get().isBlocked=true
-            userRepository.save(user.get())
-        }
+        user.isBlocked=true
+        userRepository.save(user)
         return user
     }
 //    @Transactional

@@ -24,8 +24,8 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.util.*
-import kotlin.random.Random
 
 
 @Service
@@ -66,78 +66,81 @@ class AuthenticationServicesImpl(
         }
     }
 
-    override fun signInWithGoogle(googleUser:GoogleAuthResponseDto): UserSession {
-       if(isExists(googleUser.email)){
-           val user=userRepository.findByEmail(googleUser.email).get()
-           if (user.isBlocked) {
-               throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
-           }
-           when (user.authProvider){
-               AuthProvider.GOOGLE -> {
-                   val userSession: UserSession
+    override fun signInWithGoogle(googleUser: GoogleAuthResponseDto): UserSession {
+        if (isExists(googleUser.email)) {
+            val user = userRepository.findByEmail(googleUser.email).get()
+            if (user.isBlocked) {
+                throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
+            }
+            when (user.authProvider) {
+                AuthProvider.GOOGLE -> {
+                    val userSession: UserSession
 
 
-                   val jwt: String = jwtServices.generateToken(user)
-                   val refreshToken: String = jwtServices.generateRefreshToken(HashMap(), user)
-                   userSession =  UserSession(
-                       token = jwt,
-                       email = user.email.toString(),
-                       refreshToken = refreshToken,
-                       name = user.name.toString(),
-                       userId = user.id.toString().toInt(),
-                       authProvider = user.authProvider,
-                       profilePicture = user.profilePicture
-                   )
+                    val jwt: String = jwtServices.generateToken(user)
+                    val refreshToken: String = jwtServices.generateRefreshToken(HashMap(), user)
+                    userSession = UserSession(
+                        token = jwt,
+                        email = user.email.toString(),
+                        refreshToken = refreshToken,
+                        name = user.name.toString(),
+                        userId = user.id.toString().toInt(),
+                        authProvider = user.authProvider,
+                        profilePicture = user.profilePicture
 
-                   return userSession
-               }
-               AuthProvider.EMAIL_PASSWORD -> {
-                   throw BadApiRequest("Account is registered with email and password")
-               }
-               null -> {
-                   throw BadApiRequest("Something went wrong!")
-               }
-           }
-       }else{
-           val user =
-               User(
-                   email = googleUser.email,
-                   name = googleUser.name,
-                   role = Role.USER,
-                   enabled = true,
-                   verificationToken = null,
-                   password = null,
-                   authProvider = AuthProvider.GOOGLE,
-                   profilePicture = googleUser.picture
-               )
+                    )
 
-           try {
-               userRepository.save(user)
-               val userSession: UserSession
+                    return userSession
+                }
+
+                AuthProvider.EMAIL_PASSWORD -> {
+                    throw BadApiRequest("Account is registered with email and password")
+                }
+
+                null -> {
+                    throw BadApiRequest("Something went wrong!")
+                }
+            }
+        } else {
+            val user =
+                User(
+                    email = googleUser.email,
+                    name = googleUser.name.lowercase(),
+                    role = Role.USER,
+                    enabled = true,
+                    verificationToken = null,
+                    password = null,
+                    authProvider = AuthProvider.GOOGLE,
+                    profilePicture = googleUser.picture,
+                    date = LocalDate.now()
+                )
+
+            try {
+                userRepository.save(user)
+                val userSession: UserSession
 
 
+                val jwt: String = jwtServices.generateToken(user)
+                val refreshToken: String = jwtServices.generateRefreshToken(HashMap(), user)
+                userSession = UserSession(
+                    token = jwt,
+                    email = user.email.toString(),
+                    refreshToken = refreshToken,
+                    name = user.name.toString(),
+                    userId = user.id.toString().toInt(),
+                    authProvider = user.authProvider,
+                    profilePicture = user.profilePicture
+                )
 
-               val jwt: String = jwtServices.generateToken(user)
-               val refreshToken: String = jwtServices.generateRefreshToken(HashMap(), user)
-               userSession =  UserSession(
-                   token = jwt,
-                   email = user.email.toString(),
-                   refreshToken = refreshToken,
-                   name = user.name.toString(),
-                   userId = user.id.toString().toInt(),
-                   authProvider = user.authProvider,
-                   profilePicture = user.profilePicture
-               )
+                return userSession
+            } catch (e: Exception) {
+                logger.info(user.name + " " + user.email)
+                logger.info("exception in saving data")
+                logger.info(e.message)
+                throw BadApiRequest(e.message ?: "Issue while creating your account.!")
+            }
 
-               return userSession
-           } catch (e: Exception) {
-               logger.info(user.name + " " + user.email)
-               logger.info("exception in saving data")
-               logger.info(e.message)
-               throw BadApiRequest(e.message ?: "Issue while creating your account.!")
-           }
-
-       }
+        }
     }
 
 
@@ -146,12 +149,13 @@ class AuthenticationServicesImpl(
         val user =
             User(
                 email = signUpRequest?.email,
-                name = signUpRequest?.name,
+                name = signUpRequest?.name?.lowercase(),
                 role = Role.USER,
                 enabled = false,
                 verificationToken = UUID.randomUUID().toString(),
                 password = passwordEncoder.encode(signUpRequest?.password),
-                authProvider = AuthProvider.EMAIL_PASSWORD
+                authProvider = AuthProvider.EMAIL_PASSWORD,
+                date = LocalDate.now()
             )
 
         val data: User? = try {
@@ -206,7 +210,7 @@ class AuthenticationServicesImpl(
         if (user.isBlocked) {
             throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
         }
-        if(user.authProvider==AuthProvider.GOOGLE){
+        if (user.authProvider == AuthProvider.GOOGLE) {
             throw BadApiRequest("This email is connected to Google Sign-In. Please continue with Google.")
         }
         var userSession: UserSession? = null
@@ -236,7 +240,7 @@ class AuthenticationServicesImpl(
 
     override fun refreshToken(refreshToken: String?): UserSession? {
         val userEmail: String? = jwtServices?.extractUserName(refreshToken)
-        val user: User? = userRepository?.findByEmail(userEmail)?.orElseThrow{BadApiRequest("User not found!")}
+        val user: User? = userRepository?.findByEmail(userEmail)?.orElseThrow { BadApiRequest("User not found!") }
         if (jwtServices?.isTokenValid(refreshToken, user) == true) {
             val jwt: String? = jwtServices.generateToken(user)
             val userSession = userEmail?.let {
@@ -247,7 +251,7 @@ class AuthenticationServicesImpl(
                     name = user?.name.toString(),
                     userId = user?.id.toString().toInt(),
                     authProvider = user?.authProvider,
-                    profilePicture = "null"
+                    profilePicture = null
                 )
             }
             return userSession
@@ -255,19 +259,19 @@ class AuthenticationServicesImpl(
         return null
     }
 
-    override fun changePassword(newPassword: String?,oldPassword:String?,email: String?): String {
+    override fun changePassword(newPassword: String?, oldPassword: String?, email: String?): String {
         val user = userRepository.findByEmail(email).get()
         if (user.isBlocked) {
             throw BadApiRequest("Your account has been blocked. Please contact support for further assistance.!")
         }
-        if (user.authProvider=== AuthProvider.GOOGLE) {
+        if (user.authProvider === AuthProvider.GOOGLE) {
             throw BadApiRequest("Cannot change password for Google Sign-In email.")
         }
 
         if (!passwordEncoder.matches(oldPassword, user.password)) {
             throw BadCredentialsException("Incorrect old password.")
         }
-        try{
+        try {
             val password = passwordEncoder.encode(newPassword)
             userRepository.updatePassword(email, password)
         } catch (e: Exception) {
