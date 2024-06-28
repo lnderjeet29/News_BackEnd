@@ -14,8 +14,9 @@ data class NewsDto (
     var articleUrl:String?=null,
     var publishedAt: LocalDateTime = LocalDateTime.now(),
     var view:Int=0,
-    var like:Int=0,
+    var totalLikes:Int=0,
     var share:Int=0,
     var comments:Int=0,
+    var isLiked:Boolean=false,
     var isTrending:Boolean=false
 )

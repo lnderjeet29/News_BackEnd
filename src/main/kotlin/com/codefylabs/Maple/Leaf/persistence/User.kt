@@ -12,7 +12,7 @@ import java.time.LocalDate
 data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_Id")
+    @Column(name = "user_id")
     var id: Int?=0,
 
     @Column(name = "user_name")

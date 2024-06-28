@@ -43,8 +43,6 @@ data class News(
     @Column(name="view_count")
     var totalView:Int=0,
 
-    @Column(name="like_count")
-    var totalLike:Int=0,
 
     @Column(name="share_count")
     var share:Int=0,
@@ -66,7 +64,6 @@ data class News(
         share = 0,
         isTrending = false,
         totalView = 0,
-        totalLike = 0,
         category = "null"
     )
 }
