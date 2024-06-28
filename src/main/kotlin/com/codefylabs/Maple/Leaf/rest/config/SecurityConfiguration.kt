@@ -2,7 +2,7 @@ package com.codefylabs.Maple.Leaf.rest.config
 
 import com.codefylabs.Maple.Leaf.business.filter.JWTAuthenticatorFilter
 import com.codefylabs.Maple.Leaf.business.gateway.UserServices
-import com.codefylabs.Maple.Leaf.persistance.Role
+import com.codefylabs.Maple.Leaf.persistence.entities.Role
 import lombok.RequiredArgsConstructor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -34,7 +34,10 @@ class SecurityConfiguration(
         return http.csrf { it.disable() }
             .authorizeHttpRequests { requests ->
                 requests
-                    .requestMatchers("/api/v1/auth/**","/","/api/v1/news/**","/api/v1/forgot-password/**","/test").permitAll()
+                    .requestMatchers(
+                        "/api/v1/auth/**", "/", "/api/v1/news/**",
+                        "/api/v1/forgot-password/**", "/test"
+                    ).permitAll()
                     .requestMatchers("/api/v1/user").hasAuthority(Role.USER.name)
                     .requestMatchers("/api/v1/admin").hasAuthority(Role.ADMIN.name)
                     .anyRequest().authenticated()

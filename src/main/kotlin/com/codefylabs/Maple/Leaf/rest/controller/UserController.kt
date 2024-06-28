@@ -2,7 +2,7 @@ package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import com.codefylabs.Maple.Leaf.business.gateway.UserServices
-import com.codefylabs.Maple.Leaf.persistance.User
+import com.codefylabs.Maple.Leaf.persistence.entities.User
 import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse
 import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
@@ -26,7 +26,7 @@ class UserController(val jwtServices: JWTServices, val userServices: UserService
         logger.info(token)
         var username: String? = null
         try {
-            username = jwtServices.extractUserName(token.substring(7))
+            username = jwtServices.extractEmail(token.substring(7))
             val response: CommonResponse<User> =
                 CommonResponse(data = userServices.findUser(username), message = "user details", status = true)
             return ResponseEntity(response, HttpStatus.OK)

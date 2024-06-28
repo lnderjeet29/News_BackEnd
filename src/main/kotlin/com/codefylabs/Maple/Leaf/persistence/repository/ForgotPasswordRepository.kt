@@ -1,10 +1,13 @@
-package com.codefylabs.Maple.Leaf.persistance
+package com.codefylabs.Maple.Leaf.persistence.repository
 
+import com.codefylabs.Maple.Leaf.persistence.entities.ForgotPassword
+import com.codefylabs.Maple.Leaf.persistence.entities.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.stereotype.Repository
 import java.util.*
 
-
+@Repository
 interface ForgotPasswordRepository : JpaRepository<ForgotPassword?, Int?> {
 
     fun findByUser(user: User?): Optional<ForgotPassword>

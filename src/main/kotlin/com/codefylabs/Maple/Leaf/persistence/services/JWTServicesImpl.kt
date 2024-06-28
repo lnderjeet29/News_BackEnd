@@ -1,4 +1,4 @@
-package com.codefylabs.Maple.Leaf.persistence.implementation
+package com.codefylabs.Maple.Leaf.persistence.services
 
 import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import io.jsonwebtoken.Claims
@@ -39,7 +39,7 @@ class JWTServicesImpl : JWTServices {
     }
 
 
-    override fun extractUserName(token: String?): String? {
+    override fun extractEmail(token: String?): String? {
         return token?.let { extractClaim<String>(it, Claims::getSubject) }
     }
 
@@ -52,7 +52,7 @@ class JWTServicesImpl : JWTServices {
     }
 
     override fun isTokenValid(token: String?, userDetails: UserDetails?): Boolean {
-        val username = extractUserName(token)
+        val username = extractEmail(token)
         return username == userDetails?.username && !token?.let { isTokenExpired(it) }!!
     }
 
@@ -63,4 +63,5 @@ class JWTServicesImpl : JWTServices {
             .signWith(signKey, SignatureAlgorithm.HS256)
             .compact()
     }
+
 }

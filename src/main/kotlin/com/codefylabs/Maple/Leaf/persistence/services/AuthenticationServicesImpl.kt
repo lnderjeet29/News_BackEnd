@@ -3,10 +3,10 @@ package com.codefylabs.Maple.Leaf.persistance.Implementation
 import com.codefylabs.Maple.Leaf.business.gateway.AuthenticationServices
 import com.codefylabs.Maple.Leaf.business.gateway.EmailServices
 import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
-import com.codefylabs.Maple.Leaf.persistance.Role
-import com.codefylabs.Maple.Leaf.persistance.User
-import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
-import com.codefylabs.Maple.Leaf.persistence.AuthProvider
+import com.codefylabs.Maple.Leaf.persistence.entities.Role
+import com.codefylabs.Maple.Leaf.persistence.entities.User
+import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.persistence.entities.AuthProvider
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.auth.GoogleAuthResponseDto
 import com.codefylabs.Maple.Leaf.rest.dto.auth.SignUpRequest
@@ -239,7 +239,7 @@ class AuthenticationServicesImpl(
 
 
     override fun refreshToken(refreshToken: String?): UserSession? {
-        val userEmail: String? = jwtServices?.extractUserName(refreshToken)
+        val userEmail: String? = jwtServices?.extractEmail(refreshToken)
         val user: User? = userRepository?.findByEmail(userEmail)?.orElseThrow { BadApiRequest("User not found!") }
         if (jwtServices?.isTokenValid(refreshToken, user) == true) {
             val jwt: String? = jwtServices.generateToken(user)

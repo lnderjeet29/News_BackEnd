@@ -1,4 +1,4 @@
-package com.codefylabs.Maple.Leaf.persistence
+package com.codefylabs.Maple.Leaf.persistence.entities.news
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -11,7 +11,7 @@ data class News(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "news_Id")
-    var id: Int?=0,
+    var id: Int=0,
 
     @Column(name = "title")
     var title:String?=null,

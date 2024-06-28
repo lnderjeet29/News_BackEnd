@@ -1,10 +1,10 @@
-package com.codefylabs.Maple.Leaf.persistence.implementation
+package com.codefylabs.Maple.Leaf.persistence.services
 
 import com.codefylabs.Maple.Leaf.business.gateway.NewsLikeService
-import com.codefylabs.Maple.Leaf.persistance.User
-import com.codefylabs.Maple.Leaf.persistence.LikeRepository
-import com.codefylabs.Maple.Leaf.persistence.News
-import com.codefylabs.Maple.Leaf.persistence.NewsLikes
+import com.codefylabs.Maple.Leaf.persistence.entities.User
+import com.codefylabs.Maple.Leaf.persistence.repository.LikeRepository
+import com.codefylabs.Maple.Leaf.persistence.entities.news.News
+import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsLikes
 import org.springframework.stereotype.Service
 
 @Service

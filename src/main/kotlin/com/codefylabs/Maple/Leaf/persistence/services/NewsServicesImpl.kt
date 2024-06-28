@@ -1,7 +1,7 @@
-package com.codefylabs.Maple.Leaf.persistence.implementation
+package com.codefylabs.Maple.Leaf.persistence.services
 
 import com.codefylabs.Maple.Leaf.business.gateway.NewsServices
-import com.codefylabs.Maple.Leaf.persistence.NewsRepositoryJPA
+import com.codefylabs.Maple.Leaf.persistence.repository.NewsRepositoryJPA
 import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
 import com.codefylabs.Maple.Leaf.rest.helper.PageHelper
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 
 
 @Service
-class NewsServicesImpl(val newsRepository:NewsRepositoryJPA) : NewsServices
+class NewsServicesImpl(val newsRepository: NewsRepositoryJPA) : NewsServices
     {
 
     val logger: Logger = LoggerFactory.getLogger(NewsServicesImpl::class.java)

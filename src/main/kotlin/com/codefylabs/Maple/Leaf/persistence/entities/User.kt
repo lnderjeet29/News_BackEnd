@@ -1,6 +1,5 @@
-package com.codefylabs.Maple.Leaf.persistance
+package com.codefylabs.Maple.Leaf.persistence.entities
 
-import com.codefylabs.Maple.Leaf.persistence.AuthProvider
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -13,7 +12,7 @@ data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    var id: Int?=0,
+    var id: Int=0,
 
     @Column(name = "user_name")
     var name: String? = null,
@@ -45,7 +44,7 @@ data class User(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "auth_provider")
-    var authProvider:AuthProvider?=null,
+    var authProvider: AuthProvider?=null,
 
     @Column(name="profile_picture")
     var profilePicture:String?=null

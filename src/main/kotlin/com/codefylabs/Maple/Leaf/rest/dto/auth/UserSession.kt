@@ -1,6 +1,6 @@
 package com.codefylabs.Maple.Leaf.rest.dto.auth;
 
-import com.codefylabs.Maple.Leaf.persistence.AuthProvider
+import com.codefylabs.Maple.Leaf.persistence.entities.AuthProvider
 
 
 
@@ -11,5 +11,5 @@ data class UserSession (
     var profilePicture:String?,
     var token:String,
     var refreshToken:String,
-    var authProvider:AuthProvider?
+    var authProvider: AuthProvider?
 )

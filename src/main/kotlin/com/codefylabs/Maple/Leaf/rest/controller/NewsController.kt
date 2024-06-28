@@ -1,14 +1,16 @@
 package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
+import com.codefylabs.Maple.Leaf.business.gateway.NewsCommentService
 import com.codefylabs.Maple.Leaf.business.gateway.NewsLikeService
 import com.codefylabs.Maple.Leaf.business.gateway.NewsServices
-import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse
 import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.annotation.*
@@ -22,7 +24,8 @@ class NewsController
     val newsServices: NewsServices,
     val likeService: NewsLikeService,
     val jwtServices: JWTServices,
-    val userRepositoryJpa: UserRepositoryJpa
+    val userRepositoryJpa: UserRepositoryJpa,
+            val commentService: NewsCommentService
 ) {
 
     val logger: Logger = LoggerFactory.getLogger(NewsController::class.java)
@@ -35,15 +38,8 @@ class NewsController
     ): ResponseEntity<CommonResponse<String>> {
         try {
             logger.info(token)
-            val userEmail = jwtServices.extractUserName(token.substring(7))
+            val userEmail = jwtServices.extractEmail(token.substring(7))
             val userId = userRepositoryJpa.findByEmail(userEmail).get().id
-                ?: return ResponseEntity.badRequest().body(
-                    CommonResponse(
-                        message = "Unable to process.!",
-                        status = false,
-                        data = null
-                    )
-                )
             if (isLiked) {
                 val likes = likeService.addLike(userId, newsId)
                 return ResponseEntity.ok().body(
@@ -94,16 +90,15 @@ class NewsController
             val response = newsServices.getNews(pageNumber = pageNumber, pageSize = pageSize, category = category)
 
             if (!token.isNullOrEmpty()) {
-                val userEmail = jwtServices.extractUserName(token.substring(7))
+                val userEmail = jwtServices.extractEmail(token.substring(7))
                 val userId = userRepositoryJpa.findByEmail(userEmail).get().id
-                if (userId != null) {
-                    response.content.forEach { newsDto ->
-                        if (newsDto.id != null) {
-                            newsDto.isLiked = likeService.isLikedByUser(userId, newsDto.id!!)
-                            newsDto.totalLikes = likeService.countLikesForNewsPost(newsDto.id!!)
-                        }
-                    }
+                response.content.forEach { newsDto ->
+                    newsDto.isLiked = likeService.isLikedByUser(userId, newsDto.id)
+                    newsDto.totalLikes = likeService.countLikesForNewsPost(newsDto.id)
                 }
+            }
+            response.content.forEach(){
+                it.comments= commentService.getTotalCommentsCount(it.id)
             }
             ResponseEntity.ok().body(
                 CommonResponse(
@@ -112,16 +107,28 @@ class NewsController
                     data = response
                 )
             )
-        } catch (e: Exception) {
+        }
+        catch (e: BadCredentialsException) {
+            e.printStackTrace()
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                CommonResponse(
+                    message = "Session Expired.!",
+                    status = false,
+                    data = null
+                )
+            )
+        }catch (e: Exception) {
             e.printStackTrace()
             ResponseEntity.badRequest().body(
                 CommonResponse(
                     message = e.message ?: "Something went wrong.!",
-                    status = true,
+                    status = false,
                     data = null
                 )
             )
         }
     }
+
+
 
 }

@@ -1,6 +1,6 @@
 package com.codefylabs.Maple.Leaf.business.gateway
 
-import com.codefylabs.Maple.Leaf.persistance.User
+import com.codefylabs.Maple.Leaf.persistence.entities.User
 import org.springframework.security.core.userdetails.UserDetailsService
 
 

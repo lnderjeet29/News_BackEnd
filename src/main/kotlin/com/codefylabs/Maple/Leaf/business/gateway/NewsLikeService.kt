@@ -1,6 +1,6 @@
 package com.codefylabs.Maple.Leaf.business.gateway
 
-import com.codefylabs.Maple.Leaf.persistence.NewsLikes
+import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsLikes
 
 interface NewsLikeService {
     // Add a like

@@ -2,7 +2,7 @@ package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.AuthenticationServices
 import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
-import com.codefylabs.Maple.Leaf.persistance.User
+import com.codefylabs.Maple.Leaf.persistence.entities.User
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.*
 import com.codefylabs.Maple.Leaf.rest.dto.auth.SignInWithGoogleRequest
@@ -130,7 +130,7 @@ class AuthController(val authentictionSerives: AuthenticationServices, val jwtSe
     @PutMapping("/change-password")
     fun changePassword(@RequestHeader(name = "Authorization") token: String,@RequestBody changePasswordRequest: ChangePasswordRequest):ResponseEntity<CommonResponse<Nothing>>{
         try {
-            val email = jwtServices.extractUserName(token.substring(7))
+            val email = jwtServices.extractEmail(token.substring(7))
 
             val message= authentictionSerives.changePassword(newPassword = changePasswordRequest.newPassword, oldPassword = changePasswordRequest.oldPassword, email)
             return ResponseEntity.ok().body(CommonResponse(message = message,status = true))

@@ -1,7 +1,7 @@
 package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.AdminServices
-import com.codefylabs.Maple.Leaf.persistance.User
+import com.codefylabs.Maple.Leaf.persistence.entities.User
 import com.codefylabs.Maple.Leaf.rest.dto.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
-import java.util.Optional
 
 
 @RestController
@@ -69,9 +68,10 @@ class AdminController(val adminServices: AdminServices) {
     }
 
     @PostMapping("/block/user")
-    fun blockUser(@RequestParam(value = "email") userEmail: String): ResponseEntity <CommonResponse<User>> {
+    fun blockUser(@RequestParam(value = "email") userEmail: String,
+                  @RequestParam isBlocked: Boolean): ResponseEntity <CommonResponse<User>> {
         try {
-            val user = adminServices.blockUser(userEmail)
+            val user = adminServices.blockUser(userEmail,isBlocked)
             val response = CommonResponse(message = "user blocked successfully.!", status = true, data = user)
             return ResponseEntity(response, HttpStatus.OK)
         } catch (e: Exception) {

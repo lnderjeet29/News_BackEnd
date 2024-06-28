@@ -1,5 +1,7 @@
-package com.codefylabs.Maple.Leaf.persistence
+package com.codefylabs.Maple.Leaf.persistence.repository
 
+import com.codefylabs.Maple.Leaf.persistence.entities.news.LikeId
+import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsLikes
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

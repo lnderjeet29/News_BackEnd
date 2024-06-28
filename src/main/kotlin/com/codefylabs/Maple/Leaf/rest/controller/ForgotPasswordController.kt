@@ -1,9 +1,9 @@
 package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.ForgotServices
-import com.codefylabs.Maple.Leaf.persistance.ForgotPassword
-import com.codefylabs.Maple.Leaf.persistance.User
-import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.persistence.entities.ForgotPassword
+import com.codefylabs.Maple.Leaf.persistence.entities.User
+import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.auth.ChangePassword
 import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse

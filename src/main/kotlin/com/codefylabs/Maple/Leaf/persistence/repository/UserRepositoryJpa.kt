@@ -1,13 +1,14 @@
-package com.codefylabs.Maple.Leaf.persistance
+package com.codefylabs.Maple.Leaf.persistence.repository
 
+import com.codefylabs.Maple.Leaf.persistence.entities.User
 import jakarta.transaction.Transactional
-import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.stereotype.Repository
 import java.util.*
 
-
+@Repository
 interface UserRepositoryJpa : JpaRepository<User?, Int?> {
 
     fun findByEmail(email: String?): Optional<User>

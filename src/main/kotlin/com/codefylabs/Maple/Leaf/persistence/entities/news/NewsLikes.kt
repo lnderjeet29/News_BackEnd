@@ -1,6 +1,6 @@
-package com.codefylabs.Maple.Leaf.persistence
+package com.codefylabs.Maple.Leaf.persistence.entities.news
 
-import com.codefylabs.Maple.Leaf.persistance.User
+import com.codefylabs.Maple.Leaf.persistence.entities.User
 import jakarta.persistence.*
 import java.io.Serializable
 

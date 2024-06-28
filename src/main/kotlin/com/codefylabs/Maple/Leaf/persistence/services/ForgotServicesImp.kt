@@ -3,11 +3,11 @@ package com.codefylabs.Maple.Leaf.persistance.Implementation
 
 import com.codefylabs.Maple.Leaf.business.gateway.EmailServices
 import com.codefylabs.Maple.Leaf.business.gateway.ForgotServices
-import com.codefylabs.Maple.Leaf.persistance.ForgotPassword
-import com.codefylabs.Maple.Leaf.persistance.ForgotPasswordRepository
-import com.codefylabs.Maple.Leaf.persistance.User
-import com.codefylabs.Maple.Leaf.persistance.UserRepositoryJpa
-import com.codefylabs.Maple.Leaf.persistence.AuthProvider
+import com.codefylabs.Maple.Leaf.persistence.entities.ForgotPassword
+import com.codefylabs.Maple.Leaf.persistence.repository.ForgotPasswordRepository
+import com.codefylabs.Maple.Leaf.persistence.entities.User
+import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.persistence.entities.AuthProvider
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.others.MailBody
 import lombok.RequiredArgsConstructor
@@ -20,7 +20,8 @@ import java.util.*
 @RequiredArgsConstructor
 class ForgotServicesImp(val emailServices: EmailServices,
                         val forgotPasswordRepository: ForgotPasswordRepository,
-                        val userRepository: UserRepositoryJpa): ForgotServices {
+                        val userRepository: UserRepositoryJpa
+): ForgotServices {
 
 
    val logger:Logger=LoggerFactory.getLogger(ForgotServicesImp::class.java)
@@ -33,7 +34,7 @@ class ForgotServicesImp(val emailServices: EmailServices,
         if (!user.enabled) {
             throw BadApiRequest("Your email address is not verified.!")
         }
-        if (user.authProvider===AuthProvider.GOOGLE) {
+        if (user.authProvider=== AuthProvider.GOOGLE) {
             throw BadApiRequest("This email is connected to Google Sign-In. Please continue with Google.")
         }
             val otp = GenerateOtp()

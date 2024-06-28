@@ -1,7 +1,7 @@
 package com.codefylabs.Maple.Leaf.rest.dto
 
-import com.codefylabs.Maple.Leaf.persistance.Role
-import com.codefylabs.Maple.Leaf.persistence.AuthProvider
+import com.codefylabs.Maple.Leaf.persistence.entities.Role
+import com.codefylabs.Maple.Leaf.persistence.entities.AuthProvider
 import java.time.LocalDate
 
 

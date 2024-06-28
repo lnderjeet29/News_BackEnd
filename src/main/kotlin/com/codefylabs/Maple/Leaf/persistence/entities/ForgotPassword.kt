@@ -1,4 +1,4 @@
-package com.codefylabs.Maple.Leaf.persistance
+package com.codefylabs.Maple.Leaf.persistence.entities
 
 import jakarta.persistence.*
 import java.util.*

@@ -4,7 +4,7 @@ package com.codefylabs.Maple.Leaf.business.gateway
 
 import com.codefylabs.Maple.Leaf.rest.dto.auth.SignUpRequest
 import com.codefylabs.Maple.Leaf.rest.dto.auth.SigninRequest
-import com.codefylabs.Maple.Leaf.persistance.User
+import com.codefylabs.Maple.Leaf.persistence.entities.User
 import com.codefylabs.Maple.Leaf.rest.dto.auth.GoogleAuthResponseDto
 import com.codefylabs.Maple.Leaf.rest.dto.auth.UserSession
 import org.springframework.transaction.annotation.Transactional
