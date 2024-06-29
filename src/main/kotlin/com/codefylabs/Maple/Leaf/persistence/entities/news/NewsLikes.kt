@@ -5,7 +5,7 @@ import jakarta.persistence.*
 import java.io.Serializable
 
 @Entity
-@Table(name = "likes")
+@Table(name = "news_likes")
 @IdClass(LikeId::class)
 data class NewsLikes(
 
