@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
+//import org.springframework.web.multipart.MultipartFile
 
 @Service
 class AdminServicesImpl(val userRepository: UserRepositoryJpa) : AdminServices {
@@ -41,24 +41,9 @@ class AdminServicesImpl(val userRepository: UserRepositoryJpa) : AdminServices {
         return user
     }
 //    @Transactional
-    override fun uploadNews(
-                           newsTitle:String?,
-                             shortDescription:String,
-                           link:String,
-                            viewCount:Int,
-                            likeCount:Int?,
-                            discussion:String?,
-                             isTrending:Boolean,thumbnailImage: MultipartFile, detailImage: MultipartFile,
-    ): String {
-        logger.info("admin service run...")
-//            val image = News(newsId = Random.nextInt(100_00, 999_99).toString(),
-//                newsTitle = newsTitle, shortDescription = shortDescription, thumbnailImage = thumbnailImage.bytes,
-//                detailImage = detailImage.bytes, link = link, likeCount = likeCount, isTrending = isTrending, viewCount = viewCount,
-//                discussion = discussion
-//            )
-//        logger.info("admin servicerss add image to variable ....")
-//            newsRepositoryJPA.save(image)
-//        logger.info("save successfully...")
-            return "successfully upload the news data..."
-    }
+//    override fun uploadNews(
+//
+//    ): String {
+//
+//    }
 }

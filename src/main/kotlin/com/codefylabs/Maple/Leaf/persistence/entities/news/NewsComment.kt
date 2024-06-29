@@ -14,7 +14,6 @@ data class NewsComment(
     @ManyToOne val news: News,
     val content: String,
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    var likes: Int = 0
 ){
     constructor():this(
         id=0,
@@ -35,7 +34,6 @@ data class NewsCommentReply(
 
     val content: String,
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    var likes: Int = 0
 ){
     constructor():this(
         id=0,

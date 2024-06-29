@@ -2,11 +2,10 @@ package com.codefylabs.Maple.Leaf.persistence.services
 
 import com.codefylabs.Maple.Leaf.business.gateway.NewsCommentService
 import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsComment
+import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsCommentLike
 import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsCommentReply
-import com.codefylabs.Maple.Leaf.persistence.repository.NewsCommentReplyRepository
-import com.codefylabs.Maple.Leaf.persistence.repository.NewsCommentRepository
-import com.codefylabs.Maple.Leaf.persistence.repository.NewsRepositoryJPA
-import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsCommentReplyLike
+import com.codefylabs.Maple.Leaf.persistence.repository.*
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentReplyDto
@@ -17,7 +16,9 @@ class NewsCommentServiceImpl(
     private val commentRepository: NewsCommentRepository,
     private val replyRepository: NewsCommentReplyRepository,
     private val userRepository: UserRepositoryJpa,
-    private val newsRepository: NewsRepositoryJPA
+    private val newsRepository: NewsRepositoryJPA,
+    private val newsCommentLikeRepository:NewsCommentLikeRepository,
+    private val newsCommentReplyLikeRepository: NewsCommentReplyLikeRepository
 ):NewsCommentService {
    override fun addComment(userId: Int, newsId: Int, content: String): NewsComment {
         val user = userRepository.findById(userId).orElseThrow { BadApiRequest("User not found") }
@@ -43,25 +44,42 @@ class NewsCommentServiceImpl(
         val reply = NewsCommentReply(user = user, comment = comment, content = content)
         return replyRepository.save(reply)
     }
-    override fun likeComment(commentId: Int): NewsComment {
-        val comment = commentRepository.findById(commentId).orElseThrow { BadApiRequest("Comment not found") }
-        comment.likes++
-        return commentRepository.save(comment)
+    override fun likeComment(commentId: Int, userId: Int): Boolean {
+        if (newsCommentLikeRepository.existsByCommentIdAndUserId(commentId, userId)) {
+            return false
+        }
+        val comment = commentRepository.findById(commentId)
+            .orElseThrow { throw RuntimeException("Comment with id $commentId not found") }
+        val like = NewsCommentLike(
+            user = comment.user,
+            comment = comment
+        )
+        newsCommentLikeRepository.save(like)
+        return true
     }
-    override fun unlikeComment(commentId: Int): NewsComment {
-        val comment = commentRepository.findById(commentId).orElseThrow { BadApiRequest("Comment not found") }
-        if (comment.likes > 0) comment.likes--
-        return commentRepository.save(comment)
+    override fun unlikeComment(commentId: Int, userId: Int): Boolean {
+        val like = newsCommentLikeRepository.findByCommentIdAndUserId(commentId, userId) ?: return false
+        newsCommentLikeRepository.delete(like)
+        return true
     }
-    override fun likeReply(replyId: Int): NewsCommentReply {
-        val reply = replyRepository.findById(replyId).orElseThrow { BadApiRequest("Reply not found") }
-        reply.likes++
-        return replyRepository.save(reply)
+    override fun likeReply(replyId: Int, userId: Int): Boolean {
+        if (newsCommentReplyLikeRepository.existsByReplyIdAndUserId(replyId, userId)) {
+            return false // User already liked this reply
+        }
+        val reply = replyRepository.findById(replyId)
+            .orElseThrow { throw RuntimeException("Reply with id $replyId not found") }
+        val like = NewsCommentReplyLike(
+            user = reply.user,
+            reply = reply
+        )
+        newsCommentReplyLikeRepository.save(like)
+        return true
     }
-    override fun unlikeReply(replyId: Int): NewsCommentReply {
-        val reply = replyRepository.findById(replyId).orElseThrow { BadApiRequest("Reply not found") }
-        if (reply.likes > 0) reply.likes--
-        return replyRepository.save(reply)
+    override fun unlikeReply(replyId: Int, userId: Int): Boolean {
+        val like = newsCommentReplyLikeRepository.findByReplyIdAndUserId(replyId, userId)
+            ?: return false
+        newsCommentReplyLikeRepository.delete(like)
+        return true
     }
    override fun fetchAllComments(newsId: Int, loggedInUserId: Int): List<NewsCommentDto> {
         return commentRepository.findByNewsId(newsId).map { comment ->
@@ -74,7 +92,8 @@ class NewsCommentServiceImpl(
                     commentId = reply.comment.id,
                     content = reply.content,
                     createdAt = reply.createdAt,
-                    likes = reply.likes,
+                    likes = countLikesForReply(reply.id),
+                    isLiked = isReplyLikedByUser(reply.id, userId = loggedInUserId),
                     isMine = reply.user.id == loggedInUserId
                 )
             }
@@ -86,11 +105,33 @@ class NewsCommentServiceImpl(
                 newsId = comment.news.id,
                 content = comment.content,
                 createdAt = comment.createdAt,
-                likes = comment.likes,
+                likes = countLikesForComment(comment.id),
+                isLiked = isCommentLikedByUser(commentId = comment.id,loggedInUserId),
                 isMine = comment.user.id == loggedInUserId,
                 replies = replies
             )
         }
     }
     override fun getTotalCommentsCount(newsId: Int): Int { return commentRepository.findByNewsId(newsId).size }
+
+    override fun countLikesForComment(commentId: Int): Long { return newsCommentLikeRepository.countByCommentId(commentId) }
+    override fun isCommentLikedByUser(commentId: Int, userId: Int): Boolean { return newsCommentLikeRepository.existsByCommentIdAndUserId(commentId, userId) }
+    override fun deleteComment(commentId: Int,userId: Int): Boolean {
+        if (commentRepository.existsById(commentId) && commentRepository.findById(commentId).get().user.id==userId) {
+            commentRepository.deleteById(commentId)
+            return true
+        }
+        return false
+    }
+
+    override fun deleteReply(replyId: Int,userId: Int): Boolean {
+        if (replyRepository.existsById(replyId) && replyRepository.findById(replyId).get().user.id==userId) {
+            replyRepository.deleteById(replyId)
+            return true
+        }
+        return false
+    }
+
+    override fun countLikesForReply(replyId: Int): Long { return newsCommentReplyLikeRepository.countByReplyId(replyId) }
+    override fun isReplyLikedByUser(replyId: Int, userId: Int): Boolean { return newsCommentReplyLikeRepository.existsByReplyIdAndUserId(replyId, userId) }
 }

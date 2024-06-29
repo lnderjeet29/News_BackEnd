@@ -3,6 +3,7 @@ package com.codefylabs.Maple.Leaf.rest.controller
 import com.codefylabs.Maple.Leaf.business.gateway.AdminServices
 import com.codefylabs.Maple.Leaf.persistence.entities.User
 import com.codefylabs.Maple.Leaf.rest.dto.*
+import com.codefylabs.Maple.Leaf.rest.dto.news.UploadNewsDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -80,43 +81,28 @@ class AdminController(val adminServices: AdminServices) {
         }
     }
 
-    @PostMapping("/uploadNews")
-    fun uploadNewsData(
-//            @RequestParam newsTitle:String?,
-//                       @RequestParam shortDescription:String,(add description)
-//                       @RequestParam link:String,
-//                       @RequestParam viewCount:Int,
-//                       @RequestParam likeCount:Int?,
-//                       @RequestParam discussion:String?,
-//                       @RequestParam isTrending:Boolean,
-        @RequestParam("thumbnail_image") thumbnailImage: MultipartFile,
-        @RequestParam("detail_image") detailImage: MultipartFile
-    ): ResponseEntity<String> {
-        try {
-//            val response:String = adminServices.uploadNews( newsTitle,
-//             shortDescription,
-//             link,
-//             viewCount,
-//             likeCount,
-//             discussion,
-//             isTrending,thumbnailImage,detailImage)
-            val response: String = adminServices.uploadNews(
-                "demo",
-                "demo descr",
-                "demo link",
-                1,
-                0,
-                "demo discussion",
-                false,
-                thumbnailImage,
-                detailImage
-            )
-            return ResponseEntity(response, HttpStatus.OK)
-        } catch (e: Exception) {
-            print("exception start from here...........................................")
-            print(e.message)
-            return ResponseEntity("upload new data not valid....", HttpStatus.NOT_ACCEPTABLE)
-        }
-
-    }
+//    @PostMapping("/news/create")
+//    fun createNews(
+//        @RequestParam("title") title: String?,
+//        @RequestParam("shortDescription") shortDescription: String?,
+//        @RequestParam("description") description: String?,
+//        @RequestParam("source") source: String?,
+//        @RequestParam("articleUrl") articleUrl: String?,
+//        @RequestParam("isTrending") isTrending: Boolean,
+//        @RequestParam("thumbnailImage") thumbnailImage: MultipartFile?,
+//        @RequestParam("detailImage") detailImage: MultipartFile?
+//    ): ResponseEntity<Any> {
+//        val uploadNewsDto = UploadNewsDto(
+//            title = title,
+//            shortDescription = shortDescription,
+//            description = description,
+//            source = source,
+//            articleUrl = articleUrl,
+//            isTrending = isTrending,
+//            thumbnailImage = thumbnailImage,
+//            detailImage = detailImage
+//        )
+//        val createdNews = newsService.createNews(uploadNewsDto)
+//        return ResponseEntity.status(HttpStatus.CREATED).body(createdNews)
+//    }
 }

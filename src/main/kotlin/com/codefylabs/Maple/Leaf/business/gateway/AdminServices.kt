@@ -11,13 +11,13 @@ interface AdminServices {
     fun getAllData(pageNumber: Int, pageSize: Int): PaginatedResponse<UserDto>
     fun blockUser(email: String, isBlocked:Boolean): User
 
-   fun uploadNews(
-                            newsTitle:String?,
-                            shortDescription:String,
-                            link:String,
-                            viewCount:Int,
-                            likeCount:Int?,
-                            discussion:String?,
-                            isTrending:Boolean,thumbnailImage: MultipartFile, detailImage: MultipartFile,
-    ): String
+//   fun uploadNews(
+//                            newsTitle:String?,
+//                            shortDescription:String,
+//                            link:String,
+//                            viewCount:Int,
+//                            likeCount:Int?,
+//                            discussion:String?,
+//                            isTrending:Boolean,thumbnailImage: MultipartFile, detailImage: MultipartFile,
+//    ): String
 }

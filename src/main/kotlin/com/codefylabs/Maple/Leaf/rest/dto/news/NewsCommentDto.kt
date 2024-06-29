@@ -10,7 +10,8 @@ data class NewsCommentDto(
     val newsId: Int,
     val content: String,
     val createdAt: LocalDateTime,
-    val likes: Int,
+    val likes: Long,
+    val isLiked: Boolean,
     val isMine: Boolean,
     val replies: List<NewsCommentReplyDto> = emptyList()
 )
@@ -22,6 +23,7 @@ data class NewsCommentReplyDto(
     val commentId: Int,
     val content: String,
     val createdAt: LocalDateTime,
-    val likes: Int,
+    val likes: Long,
+    val isLiked: Boolean,
     val isMine: Boolean
 )

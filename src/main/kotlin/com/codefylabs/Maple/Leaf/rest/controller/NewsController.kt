@@ -94,10 +94,10 @@ class NewsController
                 val userId = userRepositoryJpa.findByEmail(userEmail).get().id
                 response.content.forEach { newsDto ->
                     newsDto.isLiked = likeService.isLikedByUser(userId, newsDto.id)
-                    newsDto.totalLikes = likeService.countLikesForNewsPost(newsDto.id)
                 }
             }
             response.content.forEach(){
+                it.totalLikes = likeService.countLikesForNewsPost(it.id)
                 it.comments= commentService.getTotalCommentsCount(it.id)
             }
             ResponseEntity.ok().body(
@@ -117,6 +117,58 @@ class NewsController
                     data = null
                 )
             )
+        }catch (e: Exception) {
+            e.printStackTrace()
+            ResponseEntity.badRequest().body(
+                CommonResponse(
+                    message = e.message ?: "Something went wrong.!",
+                    status = false,
+                    data = null
+                )
+            )
+        }
+    }
+    @GetMapping("/detail")
+    fun getNewsDetail(@RequestHeader(name = "Authorization", required = false) token: String?,@RequestParam newId:Int)
+    :ResponseEntity<CommonResponse<NewsDto>>
+    {
+        return try {
+            val newsDto= newsServices.getNewsDetail(newId)
+            if (!token.isNullOrEmpty()) {
+                val userEmail = jwtServices.extractEmail(token.substring(7))
+                val userId = userRepositoryJpa.findByEmail(userEmail).get().id
+                    newsDto.isLiked = likeService.isLikedByUser(userId, newsDto.id)
+            }
+            newsDto.totalLikes = likeService.countLikesForNewsPost(newsDto.id)
+            newsDto.comments= commentService.getTotalCommentsCount(newId)
+            ResponseEntity.ok().body(CommonResponse(message = "News Details Fetched Successfully!", status = true, data = newsDto))
+        } catch (e: BadCredentialsException) {
+            e.printStackTrace()
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                CommonResponse(
+                    message = "Session Expired.!",
+                    status = false,
+                    data = null
+                )
+            )
+        }catch (e: Exception) {
+            e.printStackTrace()
+            ResponseEntity.badRequest().body(
+                CommonResponse(
+                    message = e.message ?: "Something went wrong.!",
+                    status = false,
+                    data = null
+                )
+            )
+        }
+
+    }
+
+    @PutMapping("/share/increment")
+    fun incrementShareCount(@RequestParam newsId: Int):ResponseEntity<CommonResponse<Boolean>>{
+        return try {
+            newsServices.incrementShareCount(newsId)
+            ResponseEntity.ok().body(CommonResponse(message = "Success!", status = true))
         }catch (e: Exception) {
             e.printStackTrace()
             ResponseEntity.badRequest().body(

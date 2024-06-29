@@ -7,4 +7,8 @@ import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
 interface NewsServices {
 
     fun getNews(pageNumber:Int,pageSize:Int,category: String): PaginatedResponse<NewsDto>
+
+    fun getNewsDetail(newsId:Int):NewsDto
+
+    fun incrementShareCount(newsId:Int)
 }

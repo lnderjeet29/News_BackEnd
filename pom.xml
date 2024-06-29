@@ -25,6 +25,13 @@
 			<version>4.12.0</version>
 		</dependency>
 
+<!--		&lt;!&ndash; AWS SDK for Java - S3 &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>com.amazonaws</groupId>-->
+<!--			<artifactId>aws-java-sdk-s3</artifactId>-->
+<!--			<version>1.12.261</version> &lt;!&ndash; Replace with the latest version &ndash;&gt;-->
+<!--		</dependency>-->
+
 		<!-- Gson -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

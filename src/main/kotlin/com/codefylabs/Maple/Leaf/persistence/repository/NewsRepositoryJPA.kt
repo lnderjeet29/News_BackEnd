@@ -11,4 +11,5 @@ interface NewsRepositoryJPA: JpaRepository<News, Int> {
 
     fun findByCategory(category: String, pageable: Pageable): Page<News>
 
+
 }
