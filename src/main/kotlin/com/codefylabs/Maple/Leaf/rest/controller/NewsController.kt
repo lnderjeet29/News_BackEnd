@@ -129,18 +129,18 @@ class NewsController
         }
     }
     @GetMapping("/detail")
-    fun getNewsDetail(@RequestHeader(name = "Authorization", required = false) token: String?,@RequestParam newId:Int)
+    fun getNewsDetail(@RequestHeader(name = "Authorization", required = false) token: String?,@RequestParam newsId:Int)
     :ResponseEntity<CommonResponse<NewsDto>>
     {
         return try {
-            val newsDto= newsServices.getNewsDetail(newId)
+            val newsDto= newsServices.getNewsDetail(newsId)
             if (!token.isNullOrEmpty()) {
                 val userEmail = jwtServices.extractEmail(token.substring(7))
                 val userId = userRepositoryJpa.findByEmail(userEmail).get().id
                     newsDto.isLiked = likeService.isLikedByUser(userId, newsDto.id)
             }
             newsDto.totalLikes = likeService.countLikesForNewsPost(newsDto.id)
-            newsDto.comments= commentService.getTotalCommentsCount(newId)
+            newsDto.comments= commentService.getTotalCommentsCount(newsId)
             ResponseEntity.ok().body(CommonResponse(message = "News Details Fetched Successfully!", status = true, data = newsDto))
         } catch (e: BadCredentialsException) {
             e.printStackTrace()

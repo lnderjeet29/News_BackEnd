@@ -8,7 +8,9 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "NewsComment")
 data class NewsComment(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "comment_id")
     val id: Int=0,
     @ManyToOne val user: User,
     @ManyToOne val news: News,
@@ -28,6 +30,7 @@ data class NewsComment(
 data class NewsCommentReply(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "reply_id")
     val id: Int=0,
     @ManyToOne val user: User,
     @ManyToOne val comment: NewsComment,

@@ -1,10 +1,10 @@
 package com.codefylabs.Maple.Leaf.persistence.repository
 
 import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsCommentLike
-import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsCommentReply
 import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsCommentReplyLike
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
+
 @Repository
 interface NewsCommentLikeRepository : JpaRepository<NewsCommentLike, Int> {
     fun countByCommentId(commentId: Int): Long
