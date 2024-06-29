@@ -81,7 +81,7 @@ class AdminController(val adminServices: AdminServices,val imageUploadService: I
         }
     }
 
-    @PostMapping("/news/create", consumes = ["multipart/form-data"])
+    @PostMapping("/news/create", consumes = ["multipart/form-data","application/octet-stream"])
     fun createNews(
         @RequestPart("title") title: String?,
         @RequestPart("shortDescription") shortDescription: String?,
