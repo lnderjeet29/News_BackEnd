@@ -1,10 +1,12 @@
 package com.codefylabs.Maple.Leaf.persistence.services
 
 import com.codefylabs.Maple.Leaf.business.gateway.NewsServices
+import com.codefylabs.Maple.Leaf.persistence.entities.news.News
 import com.codefylabs.Maple.Leaf.persistence.repository.NewsRepositoryJPA
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
+import com.codefylabs.Maple.Leaf.rest.dto.news.UploadNewsDto
 import com.codefylabs.Maple.Leaf.rest.helper.PageHelper
 import org.modelmapper.ModelMapper
 import org.slf4j.Logger
@@ -41,4 +43,23 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA) : NewsServices
              news.share+=1
              newsRepository.save(news)
          }
+
+        override fun createNews(uploadNewsDto: UploadNewsDto): NewsDto {
+            val news = News(
+                title = uploadNewsDto.title,
+                shortDescription = uploadNewsDto.shortDescription,
+                description = uploadNewsDto.description,
+                thumbnailUrl = uploadNewsDto.thumbnailImage,
+                detailImageUrl = uploadNewsDto.detailImage,
+                source = uploadNewsDto.source,
+                articleUrl = uploadNewsDto.articleUrl,
+                category = uploadNewsDto.category.toString(),
+                isTrending = uploadNewsDto.isTrending
+            )
+            return ModelMapper().map(newsRepository.save(news),NewsDto::class.java)
+        }
+
+        override fun deleteNews(newsId: Int): Boolean {
+            TODO("Not yet implemented")
+        }
     }

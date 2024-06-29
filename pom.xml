@@ -25,13 +25,23 @@
 			<version>4.12.0</version>
 		</dependency>
 
-<!--		&lt;!&ndash; AWS SDK for Java - S3 &ndash;&gt;-->
-<!--		<dependency>-->
-<!--			<groupId>com.amazonaws</groupId>-->
-<!--			<artifactId>aws-java-sdk-s3</artifactId>-->
-<!--			<version>1.12.261</version> &lt;!&ndash; Replace with the latest version &ndash;&gt;-->
-<!--		</dependency>-->
-
+		<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-aws/2.2.6.RELEASE-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-aws</artifactId>
+			<version>2.2.6.RELEASE</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.12.667</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
+		</dependency>
 		<!-- Gson -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

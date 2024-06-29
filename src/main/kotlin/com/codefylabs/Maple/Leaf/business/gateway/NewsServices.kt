@@ -2,6 +2,7 @@ package com.codefylabs.Maple.Leaf.business.gateway
 
 import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
+import com.codefylabs.Maple.Leaf.rest.dto.news.UploadNewsDto
 
 
 interface NewsServices {
@@ -11,4 +12,8 @@ interface NewsServices {
     fun getNewsDetail(newsId:Int):NewsDto
 
     fun incrementShareCount(newsId:Int)
+
+    fun createNews(uploadNewsDto: UploadNewsDto):NewsDto
+    fun deleteNews(newsId:Int):Boolean
+
 }
