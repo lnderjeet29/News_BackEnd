@@ -50,8 +50,6 @@ data class News(
     @Column(name="comment_count")
     var comments:Int=0,
 
-    @Column(name="discussion")
-    var discussion:String?=null,
 
     @Column(name="is_trending")
     var isTrending:Boolean=false

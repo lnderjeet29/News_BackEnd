@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.net.URI
+import java.net.URISyntaxException
 
 
 @RestController
@@ -151,11 +153,12 @@ class AdminController(val adminServices: AdminServices,val imageUploadService: I
                 .body(CommonResponse(status = false, message = "Failed to create news"))
         }
     }
+
     private fun isValidUrl(url: String): Boolean {
         return try {
-            java.net.URL(url)
-            true
-        } catch (e: Exception) {
+            val uri = URI(url)
+            uri.isAbsolute && uri.scheme != null && uri.host != null
+        } catch (e: URISyntaxException) {
             false
         }
     }
