@@ -1,6 +1,7 @@
 package com.codefylabs.Maple.Leaf.persistence.entities.news
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.Size
 import java.time.LocalDateTime
 
 
@@ -19,7 +20,8 @@ data class News(
     @Column(name = "short_description")
     var shortDescription:String?=null,
 
-    @Column(name = "description")
+    @Column(name = "description", length = 3000)
+    @Size(max = 3000)
     var description:String?=null,
 
     @Column(name = "thumbnail_url")
@@ -48,17 +50,19 @@ data class News(
     var share:Int=0,
 
     @Column(name="comment_count")
-    var comments:Int=0,
+    var totalComments:Int=0,
 
 
     @Column(name="is_trending")
-    var isTrending:Boolean=false
+    var isTrending:Boolean=false,
+    @OneToMany(mappedBy = "news", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val comments: List<NewsComment> = emptyList()
 
 ){
     constructor() : this(
         id=0,
         publishedAt = LocalDateTime.now(),
-        comments = 0,
+        totalComments = 0,
         share = 0,
         isTrending = false,
         totalView = 0,
