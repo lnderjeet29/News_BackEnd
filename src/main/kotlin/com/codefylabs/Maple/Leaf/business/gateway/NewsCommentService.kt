@@ -3,10 +3,11 @@ package com.codefylabs.Maple.Leaf.business.gateway
 import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsComment
 import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsCommentReply
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentDto
+import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentReplyDto
 
 interface NewsCommentService {
-    fun addComment(userId: Int, newsId: Int, content: String): NewsComment
-    fun addReply(userId: Int, commentId: Int, content: String): NewsCommentReply
+    fun addComment(userId: Int, newsId: Int, content: String): NewsCommentDto
+    fun addReply(userId: Int, commentId: Int, content: String): NewsCommentReplyDto
     fun likeComment(commentId: Int,userId: Int): Boolean
     fun unlikeComment(commentId: Int, userId: Int): Boolean
     fun likeReply(replyId: Int, userId: Int): Boolean

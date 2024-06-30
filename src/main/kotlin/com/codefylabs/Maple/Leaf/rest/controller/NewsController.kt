@@ -4,7 +4,9 @@ import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import com.codefylabs.Maple.Leaf.business.gateway.NewsCommentService
 import com.codefylabs.Maple.Leaf.business.gateway.NewsLikeService
 import com.codefylabs.Maple.Leaf.business.gateway.NewsServices
+import com.codefylabs.Maple.Leaf.persistence.repository.NewsRepositoryJPA
 import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse
 import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
@@ -163,6 +165,7 @@ class NewsController
         }
 
     }
+
 
     @PutMapping("/share/increment")
     fun incrementShareCount(@RequestParam newsId: Int):ResponseEntity<CommonResponse<Boolean>>{

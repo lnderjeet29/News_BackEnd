@@ -8,6 +8,7 @@ import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsCommentReply
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentDto
+import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentReplyDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentRequestDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.ReplyRequestDto
 import org.springframework.http.HttpStatus
@@ -27,7 +28,7 @@ class NewsCommentController(
     fun addComment(
         @RequestHeader(name = "Authorization") token: String,
         @RequestBody commentRequest: NewsCommentRequestDto
-    ): ResponseEntity<CommonResponse<NewsComment>> {
+    ): ResponseEntity<CommonResponse<NewsCommentDto>> {
         return try {
             val userId = userServices.findUser(jwtServices.extractEmail(token.substring(7)))?.id ?: throw BadApiRequest(
                 "user not found!"
@@ -50,7 +51,7 @@ class NewsCommentController(
         @RequestHeader(name = "Authorization") token: String,
         @RequestParam commentId: Int,
         @RequestBody body: ReplyRequestDto
-    ): ResponseEntity<CommonResponse<NewsCommentReply>> {
+    ): ResponseEntity<CommonResponse<NewsCommentReplyDto>> {
         return try {
             val userId = userServices.findUser(jwtServices.extractEmail(token.substring(7)))?.id ?: throw BadApiRequest(
                 "user not found!"

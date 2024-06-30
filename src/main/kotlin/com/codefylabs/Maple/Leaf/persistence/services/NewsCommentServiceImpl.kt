@@ -9,6 +9,7 @@ import com.codefylabs.Maple.Leaf.persistence.repository.*
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentReplyDto
+import com.codefylabs.Maple.Leaf.rest.dto.news.toDto
 import org.springframework.stereotype.Service
 
 @Service
@@ -20,7 +21,7 @@ class NewsCommentServiceImpl(
     private val newsCommentLikeRepository:NewsCommentLikeRepository,
     private val newsCommentReplyLikeRepository: NewsCommentReplyLikeRepository
 ):NewsCommentService {
-   override fun addComment(userId: Int, newsId: Int, content: String): NewsComment {
+   override fun addComment(userId: Int, newsId: Int, content: String): NewsCommentDto {
         val user = userRepository.findById(userId).orElseThrow { BadApiRequest("User not found") }
         val news = newsRepository.findById(newsId).orElseThrow { BadApiRequest("News not found") }
        if (user==null){
@@ -29,10 +30,21 @@ class NewsCommentServiceImpl(
        if (!user.enabled || user.isBlocked){
            throw BadApiRequest("User not allowed")
        }
-        val comment = NewsComment(user = user, news = news, content = content)
-        return commentRepository.save(comment)
+        val comment = commentRepository.save(NewsComment(user = user, news = news, content = content))
+       val replies = replyRepository.findByCommentId(comment.id).map { reply ->
+           reply.toDto(
+               likes = countLikesForReply(reply.id),
+               isReplyLikedByUser = isReplyLikedByUser(reply.id, userId = userId),
+               isMine = reply.user.id == userId
+           )
+       }
+      val dto= comment.toDto(likes = countLikesForComment(comment.id),
+           isCommentLikedByUser = isCommentLikedByUser(commentId = comment.id,userId),
+           isMine = comment.user.id == userId,
+           replies = replies)
+       return dto
     }
-    override fun addReply(userId: Int, commentId: Int, content: String): NewsCommentReply {
+    override fun addReply(userId: Int, commentId: Int, content: String): NewsCommentReplyDto {
         val user = userRepository.findById(userId).orElseThrow { BadApiRequest("User not found") }
         val comment = commentRepository.findById(commentId).orElseThrow { BadApiRequest("Comment not found") }
         if (user==null){
@@ -41,8 +53,12 @@ class NewsCommentServiceImpl(
         if (!user.enabled || user.isBlocked){
             throw BadApiRequest("User not allowed")
         }
-        val reply = NewsCommentReply(user = user, comment = comment, content = content)
-        return replyRepository.save(reply)
+        val reply = replyRepository.save(NewsCommentReply(user = user, comment = comment, content = content))
+         return    reply.toDto(
+                likes = countLikesForReply(reply.id),
+                isReplyLikedByUser = isReplyLikedByUser(reply.id, userId = userId),
+                isMine = reply.user.id == userId
+            )
     }
     override fun likeComment(commentId: Int, userId: Int): Boolean {
         if (newsCommentLikeRepository.existsByCommentIdAndUserId(commentId, userId)) {
@@ -84,32 +100,16 @@ class NewsCommentServiceImpl(
    override fun fetchAllComments(newsId: Int, loggedInUserId: Int): List<NewsCommentDto> {
         return commentRepository.findByNewsId(newsId).map { comment ->
             val replies = replyRepository.findByCommentId(comment.id).map { reply ->
-                NewsCommentReplyDto(
-                    id = reply.id,
-                    userId = reply.user.id,
-                    userName = comment.user.name.toString(),
-                    userProfile = comment.user.profilePicture,
-                    commentId = reply.comment.id,
-                    content = reply.content,
-                    createdAt = reply.createdAt,
+                reply.toDto(
                     likes = countLikesForReply(reply.id),
-                    isLiked = isReplyLikedByUser(reply.id, userId = loggedInUserId),
+                    isReplyLikedByUser = isReplyLikedByUser(reply.id, userId = loggedInUserId),
                     isMine = reply.user.id == loggedInUserId
                 )
             }
-            NewsCommentDto(
-                id = comment.id,
-                userId = comment.user.id,
-                userName = comment.user.name.toString(),
-                userProfile = comment.user.profilePicture,
-                newsId = comment.news.id,
-                content = comment.content,
-                createdAt = comment.createdAt,
-                likes = countLikesForComment(comment.id),
-                isLiked = isCommentLikedByUser(commentId = comment.id,loggedInUserId),
+            comment.toDto(likes = countLikesForComment(comment.id),
+                isCommentLikedByUser = isCommentLikedByUser(commentId = comment.id,loggedInUserId),
                 isMine = comment.user.id == loggedInUserId,
-                replies = replies
-            )
+                replies = replies)
         }
     }
     override fun getTotalCommentsCount(newsId: Int): Int { return commentRepository.findByNewsId(newsId).size }

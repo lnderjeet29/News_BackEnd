@@ -2,14 +2,19 @@ package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.AdminServices
 import com.codefylabs.Maple.Leaf.business.gateway.ImageUploadService
+import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import com.codefylabs.Maple.Leaf.business.gateway.NewsServices
+import com.codefylabs.Maple.Leaf.persistence.entities.Role
 import com.codefylabs.Maple.Leaf.persistence.entities.User
+import com.codefylabs.Maple.Leaf.persistence.repository.NewsRepositoryJPA
+import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.rest.dto.*
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.UploadNewsDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
@@ -19,7 +24,14 @@ import java.net.URISyntaxException
 
 @RestController
 @RequestMapping("/api/v1/admin")
-class AdminController(val adminServices: AdminServices,val imageUploadService: ImageUploadService,val newsServices: NewsServices) {
+class AdminController(
+    val adminServices: AdminServices,
+    val imageUploadService: ImageUploadService,
+    val newsServices: NewsServices,
+    val newsRepositoryJPA: NewsRepositoryJPA,
+    val jwtServices: JWTServices,
+    val userRepositoryJpa: UserRepositoryJpa
+) {
     var logger = LoggerFactory.getLogger(AdminController::class.java)
 
     @GetMapping("/users")
@@ -160,6 +172,28 @@ class AdminController(val adminServices: AdminServices,val imageUploadService: I
             uri.isAbsolute && uri.scheme != null && uri.host != null
         } catch (e: URISyntaxException) {
             false
+        }
+    }
+
+    @DeleteMapping()
+    fun deleteNews(@RequestHeader(name = "Authorization") token:String,@RequestParam newsId: Int):ResponseEntity<CommonResponse<Nothing>>{
+
+        return try {
+            val userEmail = jwtServices.extractEmail(token.substring(7))
+            val userRole = userRepositoryJpa.findByEmail(userEmail).get().role
+            if(userRole == Role.ADMIN){
+                newsRepositoryJPA.deleteById(newsId)
+            ResponseEntity.ok()
+                .body(CommonResponse(message = "Deleted Successfully!", status = true))
+            }else {
+                throw BadCredentialsException("User is not allowed to delete this resource.")
+            }
+        } catch (e: BadCredentialsException) {
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(CommonResponse(message = "Session expired!", status = false))
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(CommonResponse(message = e.message ?: "Something went wrong!", status = false ))
         }
     }
 }
