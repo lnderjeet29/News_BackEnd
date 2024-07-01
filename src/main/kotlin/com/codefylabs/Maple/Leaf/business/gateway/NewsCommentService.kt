@@ -2,6 +2,7 @@ package com.codefylabs.Maple.Leaf.business.gateway
 
 import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsComment
 import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsCommentReply
+import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentReplyDto
 
@@ -12,7 +13,7 @@ interface NewsCommentService {
     fun unlikeComment(commentId: Int, userId: Int): Boolean
     fun likeReply(replyId: Int, userId: Int): Boolean
     fun unlikeReply(replyId: Int, userId: Int): Boolean
-    fun fetchAllComments(newsId: Int, loggedInUserId: Int): List<NewsCommentDto>
+    fun fetchAllComments(newsId: Int, loggedInUserId: Int,pageSize:Int, pageNumber:Int): PaginatedResponse<NewsCommentDto>
     fun getTotalCommentsCount(newsId: Int): Int
 
     fun countLikesForReply(replyId: Int): Long

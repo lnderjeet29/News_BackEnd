@@ -26,7 +26,6 @@ import java.net.URISyntaxException
 @RequestMapping("/api/v1/admin")
 class AdminController(
     val adminServices: AdminServices,
-    val imageUploadService: ImageUploadService,
     val newsServices: NewsServices,
     val newsRepositoryJPA: NewsRepositoryJPA,
     val jwtServices: JWTServices,
@@ -35,7 +34,7 @@ class AdminController(
     var logger = LoggerFactory.getLogger(AdminController::class.java)
 
     @GetMapping("/users")
-    fun getAllData(
+    fun getAllUserData(
         @RequestParam(value = "pageNumber", defaultValue = "0", required = false) pageNumber: Int,
         @RequestParam(value = "pageSize", defaultValue = "4", required = false) pageSize: Int
     ): ResponseEntity<CommonResponse<PaginatedResponse<UserDto>>> {

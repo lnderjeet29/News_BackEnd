@@ -26,21 +26,19 @@ class AuthController(val authentictionSerives: AuthenticationServices, val jwtSe
 
 
     @PostMapping("/signup")
-    fun signup(@RequestBody signUpRequest: SignUpRequest?): ResponseEntity<CommonResponse<String>> {
+    fun signup(@RequestBody signUpRequest: SignUpRequest): ResponseEntity<CommonResponse<String>> {
         try {
-            if (authentictionSerives.isExists(signUpRequest?.email)) {
-                val message =
-                    CommonResponse<String>(message = "user already exists...", status = false, data = null)
-                return ResponseEntity<CommonResponse<String>>(message, HttpStatus.CONFLICT)
-            }
-            val user: User? = authentictionSerives?.signup(signUpRequest)
+            val user: User = authentictionSerives.signup(signUpRequest)
             val message = CommonResponse<String>(data = null, message = ("A verification email has been sent to your email address."), status = true)
             return ResponseEntity<CommonResponse<String>>(message, HttpStatus.ACCEPTED)
+        } catch (e: BadApiRequest) {
+            e.printStackTrace()
+            val message = CommonResponse<String>(message = e.message ?: "user already exists...", status = false, data = null)
+            return ResponseEntity<CommonResponse<String>>(message, HttpStatus.BAD_REQUEST)
         } catch (e: Exception) {
-            logger.info(e.message)
             e.printStackTrace()
             val message =
-                CommonResponse<String>(message = "credential false...", status = false, data = null)
+                CommonResponse<String>(message = "Wrong Credential...", status = false, data = null)
             return ResponseEntity<CommonResponse<String>>(message, HttpStatus.BAD_REQUEST)
         }
     }

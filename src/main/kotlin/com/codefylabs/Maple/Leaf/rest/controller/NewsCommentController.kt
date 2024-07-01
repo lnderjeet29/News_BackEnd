@@ -7,6 +7,7 @@ import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsComment
 import com.codefylabs.Maple.Leaf.persistence.entities.news.NewsCommentReply
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse
+import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentReplyDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentRequestDto
@@ -157,12 +158,14 @@ class NewsCommentController(
     @GetMapping
     fun fetchAllComments(
         @RequestHeader(name = "Authorization") token: String,
-        @RequestParam newsId: Int
-    ): ResponseEntity<CommonResponse<List<NewsCommentDto>>> {
+        @RequestParam newsId: Int,
+        @RequestParam(value = "pageNumber", defaultValue = "0", required = false) pageNumber: Int,
+        @RequestParam(value = "pageSize", defaultValue = "10", required = false) pageSize: Int,
+    ): ResponseEntity<CommonResponse<PaginatedResponse<NewsCommentDto>>> {
         return try {
             val loggedInUserId = userServices.findUser(jwtServices.extractEmail(token.substring(7)))?.id
                 ?: throw BadApiRequest("user not found!")
-            val comments = commentService.fetchAllComments(newsId, loggedInUserId)
+            val comments = commentService.fetchAllComments(newsId, loggedInUserId, pageNumber = pageNumber, pageSize = pageSize)
             ResponseEntity.ok()
                 .body(CommonResponse(message = "Fetched comment successfully!", status = true, data = comments))
         } catch (e: BadCredentialsException) {

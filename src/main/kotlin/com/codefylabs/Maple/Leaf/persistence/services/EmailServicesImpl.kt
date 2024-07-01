@@ -1,4 +1,4 @@
-package com.codefylabs.Maple.Leaf.persistance.Implementation
+package com.codefylabs.Maple.Leaf.persistance.services
 
 import com.codefylabs.Maple.Leaf.business.gateway.EmailServices
 import com.codefylabs.Maple.Leaf.rest.dto.others.MailBody

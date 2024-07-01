@@ -1,4 +1,4 @@
-package com.codefylabs.Maple.Leaf.persistance.Implementation
+package com.codefylabs.Maple.Leaf.persistance.services
 
 import com.codefylabs.Maple.Leaf.business.gateway.AuthenticationServices
 import com.codefylabs.Maple.Leaf.business.gateway.EmailServices
@@ -8,6 +8,7 @@ import com.codefylabs.Maple.Leaf.persistence.entities.User
 import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.persistence.entities.AuthProvider
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
+import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse
 import com.codefylabs.Maple.Leaf.rest.dto.auth.GoogleAuthResponseDto
 import com.codefylabs.Maple.Leaf.rest.dto.auth.SignUpRequest
 import com.codefylabs.Maple.Leaf.rest.dto.auth.SigninRequest
@@ -18,7 +19,10 @@ import com.google.gson.JsonParser
 import lombok.RequiredArgsConstructor
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -37,7 +41,7 @@ class AuthenticationServicesImpl(
 ) : AuthenticationServices {
 
 
-    var logger = LoggerFactory.getLogger(AuthenticationServicesImpl::class.java)
+    var logger: Logger = LoggerFactory.getLogger(AuthenticationServicesImpl::class.java)
     override fun verifyGoogleIdToken(idToken: String): GoogleAuthResponseDto? {
         val client = OkHttpClient()
         val url = "https://oauth2.googleapis.com/tokeninfo?id_token=$idToken"
@@ -144,29 +148,30 @@ class AuthenticationServicesImpl(
     }
 
 
-    override fun signup(signUpRequest: SignUpRequest?): User? {
+    override fun signup(signUpRequest: SignUpRequest): User {
+        if (isExists(signUpRequest.email)) {
+            val user = userRepository.findByEmail(email = signUpRequest.email).get()
+            if(user.enabled){
+                throw BadApiRequest("User Already Exist!")
+            }else{
+                userRepository.delete(user)
+            }
 
+        }
         val user =
             User(
-                email = signUpRequest?.email,
-                name = signUpRequest?.name?.lowercase(),
+                email = signUpRequest.email,
+                name = signUpRequest.name.lowercase(),
                 role = Role.USER,
                 enabled = false,
                 verificationToken = UUID.randomUUID().toString(),
-                password = passwordEncoder.encode(signUpRequest?.password),
+                password = passwordEncoder.encode(signUpRequest.password),
                 authProvider = AuthProvider.EMAIL_PASSWORD,
                 date = LocalDate.now()
             )
 
-        val data: User? = try {
-            userRepository.save(user)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            logger.info(user.name + " " + user.email)
-            logger.info("exception in saving data")
-            logger.info(e.message)
-            return null
-        }
+        val data: User = userRepository.save(user)
+
         sendVerificationEmail(user)
         return data
     }
