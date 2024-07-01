@@ -13,6 +13,7 @@ import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentReplyDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.toDto
 import com.codefylabs.Maple.Leaf.rest.helper.PageHelper
+import org.modelmapper.ModelMapper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -103,26 +104,38 @@ class NewsCommentServiceImpl(
         newsCommentReplyLikeRepository.delete(like)
         return true
     }
-   override fun fetchAllComments(newsId: Int, loggedInUserId: Int,pageSize:Int, pageNumber:Int): PaginatedResponse<NewsCommentDto> {
-       val pageable: Pageable = PageRequest.of(pageNumber, pageSize)
-       val commentsPage: Page<NewsComment> = commentRepository.findByNewsId(newsId, pageable)
+    override fun fetchAllComments(
+        newsId: Int,
+        loggedInUserId: Int,
+        pageSize: Int,
+        pageNumber: Int
+    ): PaginatedResponse<NewsCommentDto> {
+        val pageable: Pageable = PageRequest.of(pageNumber, pageSize)
+        val commentsPage: Page<NewsComment> = commentRepository.findByNewsId(newsId, pageable)
 
-       val response = commentsPage.map { comment ->
-           val replies = replyRepository.findByCommentId(comment.id).map { reply ->
-               reply.toDto(
-                   likes = countLikesForReply(reply.id),
-                   isReplyLikedByUser = isReplyLikedByUser(reply.id, userId = loggedInUserId),
-                   isMine = reply.user.id == loggedInUserId
-               )
-           }
-           comment.toDto(
-               likes = countLikesForComment(comment.id),
-               isCommentLikedByUser = isCommentLikedByUser(comment.id, loggedInUserId),
-               isMine = comment.user.id == loggedInUserId,
-               replies = replies
-           )
-       }
-       return PageHelper.getPageResponse(commentsPage, NewsCommentDto::class.java)
+        val response = commentsPage.map { comment ->
+            val replies = replyRepository.findByCommentId(comment.id).map { reply ->
+                reply.toDto(
+                    likes = countLikesForReply(reply.id),
+                    isReplyLikedByUser = isReplyLikedByUser(reply.id, userId = loggedInUserId),
+                    isMine = reply.user.id == loggedInUserId
+                )
+            }
+            comment.toDto(
+                likes = countLikesForComment(comment.id),
+                isCommentLikedByUser = isCommentLikedByUser(comment.id, loggedInUserId),
+                isMine = comment.user.id == loggedInUserId,
+                replies = replies
+            )
+        }
+        return PaginatedResponse(
+            content = response.content,
+            pageNumber = commentsPage.number,
+            totalElements = commentsPage.totalElements,
+            pageSize = commentsPage.size,
+            isLastPage = commentsPage.isLast,
+            totalPages = commentsPage.totalPages
+        )
     }
     override fun getTotalCommentsCount(newsId: Int): Int { return commentRepository.countByNewsId(newsId) }
 
