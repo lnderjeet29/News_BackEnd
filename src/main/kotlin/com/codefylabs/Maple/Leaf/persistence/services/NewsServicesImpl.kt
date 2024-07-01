@@ -1,7 +1,9 @@
 package com.codefylabs.Maple.Leaf.persistence.services
 
+import com.codefylabs.Maple.Leaf.business.gateway.ImageUploadService
 import com.codefylabs.Maple.Leaf.business.gateway.NewsServices
 import com.codefylabs.Maple.Leaf.persistence.entities.news.News
+import com.codefylabs.Maple.Leaf.persistence.entities.news.PictureType
 import com.codefylabs.Maple.Leaf.persistence.repository.NewsRepositoryJPA
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
@@ -17,7 +19,9 @@ import org.springframework.stereotype.Service
 
 
 @Service
-class NewsServicesImpl(val newsRepository: NewsRepositoryJPA) : NewsServices
+class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
+                       val imageUploadService: ImageUploadService
+) : NewsServices
     {
 
     val logger: Logger = LoggerFactory.getLogger(NewsServicesImpl::class.java)
@@ -49,14 +53,18 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA) : NewsServices
                 title = uploadNewsDto.title,
                 shortDescription = uploadNewsDto.shortDescription,
                 description = uploadNewsDto.description,
-                thumbnailUrl = uploadNewsDto.thumbnailImage,
-                detailImageUrl = uploadNewsDto.detailImage,
+                thumbnailUrl = null,
+                detailImageUrl = null,
                 source = uploadNewsDto.source,
                 articleUrl = uploadNewsDto.articleUrl,
                 category = uploadNewsDto.category.toString(),
                 isTrending = uploadNewsDto.isTrending
             )
-            return ModelMapper().map(newsRepository.save(news),NewsDto::class.java)
+            var result= newsRepository.save(news)
+            result.thumbnailUrl= imageUploadService.uploadImage(uploadNewsDto.thumbnailImage,PictureType.NEWS_THUMBNAIL,result.id.toString())
+            result.detailImageUrl= imageUploadService.uploadImage(uploadNewsDto.detailImage,PictureType.NEWS_DETAIL,result.id.toString())
+            result= newsRepository.save(result)
+            return ModelMapper().map(result,NewsDto::class.java)
         }
 
         override fun deleteNews(newsId: Int): Boolean {

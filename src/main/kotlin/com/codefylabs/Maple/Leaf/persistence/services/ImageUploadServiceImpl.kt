@@ -4,6 +4,7 @@ import com.amazonaws.AmazonServiceException
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.PutObjectRequest
 import com.codefylabs.Maple.Leaf.business.gateway.ImageUploadService
+import com.codefylabs.Maple.Leaf.persistence.entities.news.PictureType
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,12 +24,22 @@ class ImageUploadServiceImpl(var s3Client: AmazonS3) :ImageUploadService{
     @Value("\${aws.s3.region}")
     private val bucketRegion = "ap-southeast-2"
 
+    @Transactional
+    override fun uploadImage(multipartFile: MultipartFile, pictureType: PictureType,id:String): String?{
+        val fileName= when (pictureType){
+            PictureType.NEWS_THUMBNAIL -> "news/${pictureType.name}_$id"
+            PictureType.NEWS_DETAIL -> "news/${pictureType.name}_$id"
+            PictureType.PROFILE_PICTURE -> "user/${pictureType.name}_$id"
+        }
+        return uploadFile(multipartFile,fileName)
+    }
+
     // for returning the URL
     @Transactional
-    override fun uploadFile(multipartFile: MultipartFile): String? {
+    override fun uploadFile(multipartFile: MultipartFile,fileName:String): String? {
         return try {
             val file = convertMultiPartFileToFile(multipartFile)
-            val fileUrl = uploadFileToS3Bucket(file)
+            val fileUrl = uploadFileToS3Bucket(file,fileName)
             file.deleteOnExit()  // To remove the file locally created in the project folder.
             fileUrl
         } catch (ex: AmazonServiceException) {
@@ -51,10 +62,10 @@ class ImageUploadServiceImpl(var s3Client: AmazonS3) :ImageUploadService{
     }
 
     @Transactional
-    private fun uploadFileToS3Bucket(file: File): String {
-        val putObjectRequest = PutObjectRequest(bucketName, file.name, file)
+    private fun uploadFileToS3Bucket(file: File, fileName: String): String {
+        val putObjectRequest = PutObjectRequest(bucketName, fileName, file)
         s3Client.putObject(putObjectRequest)
-        return s3Client.getUrl(bucketName, file.name).toString()
+        return s3Client.getUrl(bucketName, fileName).toString()
 
     }
 

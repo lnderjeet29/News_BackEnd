@@ -135,8 +135,7 @@ class AdminController(
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(CommonResponse(status = false, message = "Images should not exceed 10MB"))
             }
-            val thumbnailImageUrl = imageUploadService.uploadFile(thumbnailImage)
-            val detailImageUrl = imageUploadService.uploadFile(detailImage)
+
 
             // Create DTO for service layer
             val uploadNewsDto = UploadNewsDto(
@@ -146,15 +145,15 @@ class AdminController(
                 source = source,
                 articleUrl = articleUrl,
                 isTrending = isTrending,
-                thumbnailImage = thumbnailImageUrl,
-                detailImage = detailImageUrl,
+                thumbnailImage = thumbnailImage,
+                detailImage = detailImage,
                 category = category
             )
             // Call service to create news
             val createdNews = newsServices.createNews(uploadNewsDto)
             // Return success response
             return ResponseEntity.status(HttpStatus.CREATED)
-                .body(CommonResponse(status = false, message =  "News created successfully", data = createdNews))
+                .body(CommonResponse(status = true, message =  "News created successfully", data = createdNews))
         } catch (e: IllegalArgumentException) {
             // Handle validation errors
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -175,7 +174,7 @@ class AdminController(
         }
     }
 
-    @DeleteMapping()
+    @DeleteMapping("/news")
     fun deleteNews(@RequestHeader(name = "Authorization") token:String,@RequestParam newsId: Int):ResponseEntity<CommonResponse<Nothing>>{
 
         return try {
