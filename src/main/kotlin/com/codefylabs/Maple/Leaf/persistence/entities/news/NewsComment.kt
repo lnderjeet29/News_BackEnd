@@ -25,10 +25,10 @@ data class NewsComment(
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @OneToMany(mappedBy = "comment", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val likes: List<NewsCommentLike> = emptyList(),
+    val likes: MutableList<NewsCommentLike> = mutableListOf(),
 
     @OneToMany(mappedBy = "comment", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val replies: List<NewsCommentReply> = emptyList()
+    val replies: MutableList<NewsCommentReply> = mutableListOf()
 ) {
     constructor() : this(
         id = 0,
