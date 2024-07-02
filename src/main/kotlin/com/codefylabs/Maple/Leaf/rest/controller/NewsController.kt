@@ -143,18 +143,7 @@ class NewsController
             ResponseEntity.ok().body(CommonResponse(message = e.message ?: "Something went wrong!", status = false))
         }
     }
-    @GetMapping("/category/check")
-    fun getList():ResponseEntity<CommonResponse<List<String>>>{
-        return try {
-//            val response = categoryService.getAllCategory()
-            if (!categoryService.isCategoryNameExists("study")){
-                categoryService.saveCategory("study")
-            }
-            ResponseEntity.ok().body(CommonResponse(message = "Successfully Retrieved List Of Category!", status = true))
-        }catch (e:Exception){
-            ResponseEntity.ok().body(CommonResponse(message = e.message ?: "Something went wrong!", status = false))
-        }
-    }
+
 
     @GetMapping("/trending")
     fun getTrendingNews( @RequestHeader(value = "Authorization", required = false) token: String?,

@@ -69,7 +69,8 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
             result.detailImageUrl= imageUploadService.uploadImage(uploadNewsDto.detailImage,PictureType.NEWS_DETAIL,result.id.toString())
             result= newsRepository.save(result)
             if (!categoryService.isCategoryNameExists(result.category.lowercase())){
-                categoryService.saveCategory(result.category.lowercase())
+
+                categoryService.saveCategory(result.category)
             }
             return ModelMapper().map(result,NewsDto::class.java)
         }
