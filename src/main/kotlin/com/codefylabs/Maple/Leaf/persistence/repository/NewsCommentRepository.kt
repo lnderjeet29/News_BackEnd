@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface NewsCommentRepository : JpaRepository<NewsComment, Int> {
-    @Query("SELECT COUNT(c) FROM NewsComment c WHERE c.news.id = :newsId")
+    @Query("SELECT COUNT(c) FROM NewsComment c WHERE c.newsId = :newsId")
     fun countByNewsId(@Param("newsId") newsId: Int): Int
     fun findByNewsId(newsId: Int, pageable: Pageable): Page<NewsComment>
 }

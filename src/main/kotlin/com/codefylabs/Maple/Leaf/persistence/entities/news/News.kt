@@ -54,9 +54,7 @@ data class News(
 
 
     @Column(name="is_trending")
-    var isTrending:Boolean=false,
-    @OneToMany(mappedBy = "news", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val comments: List<NewsComment> = emptyList()
+    var isTrending:Boolean=false
 
 ){
     constructor() : this(

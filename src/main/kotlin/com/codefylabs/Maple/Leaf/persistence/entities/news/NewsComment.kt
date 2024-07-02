@@ -12,8 +12,10 @@ data class NewsComment(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
     val id: Int=0,
+    @Column(name = "newsId")
+    val newsId: Int,
     @ManyToOne val user: User,
-    @ManyToOne val news: News,
+
     val content: String,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     @OneToMany(mappedBy = "comment", cascade = [CascadeType.ALL], orphanRemoval = true)
@@ -23,8 +25,8 @@ data class NewsComment(
 ){
     constructor():this(
         id=0,
+        newsId=0,
         user=User(),
-        news= News(),
         content=""
     )
 }

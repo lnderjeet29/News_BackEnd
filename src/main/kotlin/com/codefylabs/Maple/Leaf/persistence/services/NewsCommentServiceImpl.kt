@@ -10,10 +10,7 @@ import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsCommentReplyDto
-import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.toDto
-import com.codefylabs.Maple.Leaf.rest.helper.PageHelper
-import org.modelmapper.ModelMapper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -30,14 +27,11 @@ class NewsCommentServiceImpl(
 ):NewsCommentService {
    override fun addComment(userId: Int, newsId: Int, content: String): NewsCommentDto {
         val user = userRepository.findById(userId).orElseThrow { BadApiRequest("User not found") }
-        val news = newsRepository.findById(newsId).orElseThrow { BadApiRequest("News not found") }
-       if (user==null){
-           throw BadApiRequest("User not found")
-       }
+            ?: throw BadApiRequest("User not found")
        if (!user.enabled || user.isBlocked){
            throw BadApiRequest("User not allowed")
        }
-        val comment = commentRepository.save(NewsComment(user = user, news = news, content = content))
+        val comment = commentRepository.save(NewsComment(user = user, newsId = newsId, content = content))
        val replies = replyRepository.findByCommentId(comment.id).map { reply ->
            reply.toDto(
                likes = countLikesForReply(reply.id),
