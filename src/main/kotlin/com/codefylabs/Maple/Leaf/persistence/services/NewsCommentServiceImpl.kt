@@ -21,29 +21,33 @@ class NewsCommentServiceImpl(
     private val commentRepository: NewsCommentRepository,
     private val replyRepository: NewsCommentReplyRepository,
     private val userRepository: UserRepositoryJpa,
-    private val newsRepository: NewsRepositoryJPA,
+    private val newsRepositoryJPA: NewsRepositoryJPA,
     private val newsCommentLikeRepository:NewsCommentLikeRepository,
     private val newsCommentReplyLikeRepository: NewsCommentReplyLikeRepository
 ):NewsCommentService {
-   override fun addComment(userId: Int, newsId: Int, content: String): NewsCommentDto {
+    override fun addComment(userId: Int, newsId: Int, content: String): NewsCommentDto {
         val user = userRepository.findById(userId).orElseThrow { BadApiRequest("User not found") }
             ?: throw BadApiRequest("User not found")
-       if (!user.enabled || user.isBlocked){
-           throw BadApiRequest("User not allowed")
-       }
-        val comment = commentRepository.save(NewsComment(user = user, newsId = newsId, content = content))
-       val replies = replyRepository.findByCommentId(comment.id).map { reply ->
-           reply.toDto(
-               likes = countLikesForReply(reply.id),
-               isReplyLikedByUser = isReplyLikedByUser(reply.id, userId = userId),
-               isMine = reply.user.id == userId
-           )
-       }
-      val dto= comment.toDto(likes = countLikesForComment(comment.id),
-           isCommentLikedByUser = isCommentLikedByUser(commentId = comment.id,userId),
-           isMine = comment.user.id == userId,
-           replies = replies)
-       return dto
+        val news = newsRepositoryJPA.findById(newsId)
+            .orElseThrow { IllegalArgumentException("News not found with id: $newsId") }
+
+        if (!user.enabled || user.isBlocked) {
+            throw BadApiRequest("User not allowed")
+        }
+        val comment = commentRepository.save(NewsComment(user = user, news = news, content = content))
+        val replies = replyRepository.findByCommentId(comment.id).map { reply ->
+            reply.toDto(
+                likes = countLikesForReply(reply.id),
+                isReplyLikedByUser = isReplyLikedByUser(reply.id, userId = userId),
+                isMine = reply.user.id == userId
+            )
+        }
+        return comment.toDto(
+            likes = countLikesForComment(comment.id),
+            isCommentLikedByUser = isCommentLikedByUser(commentId = comment.id, userId),
+            isMine = comment.user.id == userId,
+            replies = replies
+        )
     }
     override fun addReply(userId: Int, commentId: Int, content: String): NewsCommentReplyDto {
         val user = userRepository.findById(userId).orElseThrow { BadApiRequest("User not found") }
@@ -131,7 +135,7 @@ class NewsCommentServiceImpl(
             totalPages = commentsPage.totalPages
         )
     }
-    override fun getTotalCommentsCount(newsId: Int): Int { return commentRepository.countByNewsId(newsId) }
+    override fun getTotalCommentsCount(newsId: Int): Long { return commentRepository.countByNewsId(newsId) }
 
     override fun countLikesForComment(commentId: Int): Long { return newsCommentLikeRepository.countByCommentId(commentId) }
     override fun isCommentLikedByUser(commentId: Int, userId: Int): Boolean { return newsCommentLikeRepository.existsByCommentIdAndUserId(commentId, userId) }

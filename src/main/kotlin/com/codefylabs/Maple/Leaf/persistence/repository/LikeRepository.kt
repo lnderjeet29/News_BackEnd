@@ -15,7 +15,7 @@ interface LikeRepository : JpaRepository<NewsLikes, LikeId> {
     fun findByNewsPostId(newsPostId: Int): List<NewsLikes>
 
     // Count the number of likes for a specific news post
-    fun countByNewsPostId(newsPostId: Int): Int
+    fun countByNewsPostId(newsPostId: Int): Long
 
     // Check if a user has liked a specific news post
     fun existsByUserIdAndNewsPostId(userId: Int, newsPostId: Int): Boolean

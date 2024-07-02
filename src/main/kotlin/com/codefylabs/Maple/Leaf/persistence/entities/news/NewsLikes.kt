@@ -13,14 +13,15 @@ data class NewsLikes(
     @ManyToOne
     @JoinColumn(name = "user_id")
     val user: User?,
+
     @Id
     @ManyToOne
     @JoinColumn(name = "news_id")
     val newsPost: News?
-){
-    constructor(): this(
-        user=null,
-        newsPost=null
+) {
+    constructor() : this(
+        user = null,
+        newsPost = null
     )
 }
 

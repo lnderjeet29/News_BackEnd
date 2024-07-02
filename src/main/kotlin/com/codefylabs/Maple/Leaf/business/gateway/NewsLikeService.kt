@@ -14,5 +14,5 @@ interface NewsLikeService {
     // Get all likes for a news post
     fun getLikesForNewsPost(newsPostId: Int): List<NewsLikes>
     // Count likes for a news post
-    fun countLikesForNewsPost(newsPostId: Int): Int
+    fun countLikesForNewsPost(newsPostId: Int): Long
 }

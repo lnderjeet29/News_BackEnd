@@ -16,4 +16,5 @@ interface NewsServices {
     fun createNews(uploadNewsDto: UploadNewsDto):NewsDto
     fun deleteNews(newsId:Int):Boolean
 
+    fun getTrendingNews(userId:Int?,pageNumber:Int,pageSize:Int): PaginatedResponse<NewsDto>
 }

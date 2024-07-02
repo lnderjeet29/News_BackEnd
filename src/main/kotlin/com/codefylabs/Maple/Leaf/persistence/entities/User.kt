@@ -14,7 +14,7 @@ data class User(
     @Column(name = "user_id")
     var id: Int=0,
 
-    @Column(name = "user_name")
+    @Column(name = "name")
     var name: String? = null,
 
     @Column(name = "user_password")

@@ -14,7 +14,7 @@ interface NewsCommentService {
     fun likeReply(replyId: Int, userId: Int): Boolean
     fun unlikeReply(replyId: Int, userId: Int): Boolean
     fun fetchAllComments(newsId: Int, loggedInUserId: Int,pageSize:Int, pageNumber:Int): PaginatedResponse<NewsCommentDto>
-    fun getTotalCommentsCount(newsId: Int): Int
+    fun getTotalCommentsCount(newsId: Int): Long
 
     fun countLikesForReply(replyId: Int): Long
     fun isReplyLikedByUser(replyId: Int, userId: Int): Boolean

@@ -1,5 +1,6 @@
 package com.codefylabs.Maple.Leaf.rest.dto.news
 
+import com.codefylabs.Maple.Leaf.persistence.entities.news.News
 import java.time.LocalDateTime
 
 data class NewsDto (
@@ -14,9 +15,27 @@ data class NewsDto (
     var articleUrl:String?=null,
     var publishedAt: LocalDateTime = LocalDateTime.now(),
     var view:Int=0,
-    var totalLikes:Int=0,
+    var totalLikes: Long=0,
     var share:Int=0,
-    var comments:Int=0,
+    var comments:Long=0,
     var isLiked:Boolean=false,
     var isTrending:Boolean=false
+)
+
+fun News.toDto( commentsCount: Long, isLiked: Boolean,totalLikes: Long)=NewsDto(
+    id=this.id,
+    title= this.title,
+    shortDescription=this.shortDescription,
+    description= this.description,
+    thumbnailUrl= this.thumbnailUrl,
+    detailImageUrl= this.detailImageUrl,
+    source= this.source,
+    articleUrl=this.articleUrl,
+    publishedAt=this.publishedAt,
+    isTrending = this.isTrending,
+    share = this.share,
+    view = this.totalView,
+    isLiked = isLiked,
+    comments = commentsCount,
+    totalLikes = totalLikes,
 )

@@ -54,7 +54,13 @@ data class News(
 
 
     @Column(name="is_trending")
-    var isTrending:Boolean=false
+    var isTrending:Boolean=false,
+
+    @OneToMany(mappedBy = "news", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var comments: List<NewsComment> = emptyList(),
+
+    @OneToMany(mappedBy = "newsPost", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var likes: List<NewsLikes> = emptyList()
 
 ){
     constructor() : this(

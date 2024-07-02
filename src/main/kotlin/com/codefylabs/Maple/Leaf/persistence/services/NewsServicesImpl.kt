@@ -1,5 +1,6 @@
 package com.codefylabs.Maple.Leaf.persistence.services
 
+import com.codefylabs.Maple.Leaf.business.gateway.CategoryService
 import com.codefylabs.Maple.Leaf.business.gateway.ImageUploadService
 import com.codefylabs.Maple.Leaf.business.gateway.NewsServices
 import com.codefylabs.Maple.Leaf.persistence.entities.news.News
@@ -9,10 +10,12 @@ import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.PaginatedResponse
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.UploadNewsDto
+import com.codefylabs.Maple.Leaf.rest.dto.news.toDto
 import com.codefylabs.Maple.Leaf.rest.helper.PageHelper
 import org.modelmapper.ModelMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -20,7 +23,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
-                       val imageUploadService: ImageUploadService
+                       val imageUploadService: ImageUploadService,
+                       val categoryService: CategoryService
 ) : NewsServices
     {
 
@@ -64,10 +68,36 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
             result.thumbnailUrl= imageUploadService.uploadImage(uploadNewsDto.thumbnailImage,PictureType.NEWS_THUMBNAIL,result.id.toString())
             result.detailImageUrl= imageUploadService.uploadImage(uploadNewsDto.detailImage,PictureType.NEWS_DETAIL,result.id.toString())
             result= newsRepository.save(result)
+            if (!categoryService.isCategoryNameExists(result.category.lowercase())){
+                categoryService.saveCategory(result.category.lowercase())
+            }
             return ModelMapper().map(result,NewsDto::class.java)
         }
 
         override fun deleteNews(newsId: Int): Boolean {
             TODO("Not yet implemented")
+        }
+
+        override fun getTrendingNews(userId:Int?,pageNumber: Int, pageSize: Int): PaginatedResponse<NewsDto> {
+            val pageable: Pageable = PageRequest.of(pageNumber, pageSize)
+                val newsPage=newsRepository.findAllTrending(pageable)
+            val response = newsPage.map { news ->
+                val totalLikes = newsRepository.countLikesByNewsId(news.id)
+                val totalComments = newsRepository.countCommentsByNewsId(news.id)
+                val isLiked = if (userId != null) {
+                    newsRepository.isNewsLikedByUser(news.id, userId)
+                } else {
+                    false
+                }
+                news.toDto(isLiked=isLiked, commentsCount = totalComments, totalLikes = totalLikes)
+            }
+            return PaginatedResponse(
+                content = response.content,
+                pageNumber = newsPage.number,
+                totalElements = newsPage.totalElements,
+                pageSize = newsPage.size,
+                isLastPage = newsPage.isLast,
+                totalPages = newsPage.totalPages
+            )
         }
     }

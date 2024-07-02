@@ -8,6 +8,7 @@ import com.codefylabs.Maple.Leaf.persistence.entities.Role
 import com.codefylabs.Maple.Leaf.persistence.entities.User
 import com.codefylabs.Maple.Leaf.persistence.repository.NewsRepositoryJPA
 import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.*
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.UploadNewsDto
@@ -59,20 +60,23 @@ class AdminController(
         if (email==null){
             return try {
                 val user: List<User>? = adminServices.searchByName(name)
-                val response= CommonResponse<List<User>>(message = "Users with the same email", status = true, data = user)
+                if(user?.isEmpty() == true){
+                    throw BadApiRequest("user not found!")
+                }
+                val response= CommonResponse(message = "Users with the same email", status = true, data = user)
                 ResponseEntity(response,HttpStatus.OK)
             } catch (e: Exception) {
                 val response =
-                    CommonResponse<List<User>>(message = e.message ?: "user not found..", status = false, data = null)
+                    CommonResponse<List<User>>(message = e.message ?: "user not found.", status = false, data = null)
                 ResponseEntity(response, HttpStatus.NOT_FOUND)
             }
         }
         return try {
 
             val user: User = adminServices.searchByUserEmail(email)
-            val list = listOf<User>(user)
+            val list = listOf(user)
             val response =
-                CommonResponse<List<User>>(message = "user detail found..", status = true, data = list)
+                CommonResponse(message = "user detail found..", status = true, data = list)
             ResponseEntity(response, HttpStatus.OK)
         } catch (e: Exception) {
             val response =
@@ -84,13 +88,13 @@ class AdminController(
     @PostMapping("/block/user")
     fun blockUser(@RequestParam(value = "email") userEmail: String,
                   @RequestParam isBlocked: Boolean): ResponseEntity <CommonResponse<User>> {
-        try {
+        return try {
             val user = adminServices.blockUser(userEmail,isBlocked)
             val response = CommonResponse(message = "user blocked successfully.!", status = true, data = user)
-            return ResponseEntity(response, HttpStatus.OK)
+            ResponseEntity(response, HttpStatus.OK)
         } catch (e: Exception) {
             val response = CommonResponse<User>(message = e.message ?: "something went wrong.!", status = false, data = null)
-            return ResponseEntity(response, HttpStatus.BAD_REQUEST)
+            ResponseEntity(response, HttpStatus.BAD_REQUEST)
         }
     }
 

@@ -33,7 +33,7 @@ class NewsLikeServiceImpl (
     override fun getLikesForNewsPost(newsPostId: Int): List<NewsLikes> {
         return likeRepository.findByNewsPostId(newsPostId)
     }
-    override fun countLikesForNewsPost(newsPostId: Int): Int {
+    override fun countLikesForNewsPost(newsPostId: Int): Long {
         return likeRepository.countByNewsPostId(newsPostId)
     }
 }
