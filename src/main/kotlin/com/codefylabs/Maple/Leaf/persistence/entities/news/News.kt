@@ -57,10 +57,10 @@ data class News(
     var isTrending:Boolean=false,
 
     @OneToMany(mappedBy = "news", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var comments: List<NewsComment> = emptyList(),
+    var comments: MutableList<NewsComment> = mutableListOf(),
 
     @OneToMany(mappedBy = "newsPost", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var likes: List<NewsLikes> = emptyList()
+    var likes: MutableList<NewsLikes> = mutableListOf()
 
 ){
     constructor() : this(

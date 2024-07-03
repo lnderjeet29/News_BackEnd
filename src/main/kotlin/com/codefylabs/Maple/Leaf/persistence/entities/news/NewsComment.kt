@@ -13,11 +13,11 @@ data class NewsComment(
     @Column(name = "comment_id")
     val id: Int = 0,
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "news_id")
     var news: News,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     val user: User,
 
@@ -47,6 +47,7 @@ data class NewsCommentReply(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "reply_id")
     val id: Int=0,
+
     @ManyToOne val user: User,
     @ManyToOne val comment: NewsComment,
 
@@ -54,7 +55,7 @@ data class NewsCommentReply(
     val content: String,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     @OneToMany(mappedBy = "reply", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val replyLikes: List<NewsCommentReplyLike> = emptyList()
+    val replyLikes: MutableList<NewsCommentReplyLike> = mutableListOf()
 ){
     constructor():this(
         id=0,
