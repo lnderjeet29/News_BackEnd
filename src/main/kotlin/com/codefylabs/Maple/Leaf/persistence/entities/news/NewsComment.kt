@@ -13,7 +13,7 @@ data class NewsComment(
     @Column(name = "comment_id")
     val id: Int = 0,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "news_id")
     var news: News,
 
@@ -34,7 +34,9 @@ data class NewsComment(
         id = 0,
         news = News(),
         user = User(),
-        content = ""
+        content = "",
+        likes = mutableListOf(),
+        replies= mutableListOf()
     )
 }
 
