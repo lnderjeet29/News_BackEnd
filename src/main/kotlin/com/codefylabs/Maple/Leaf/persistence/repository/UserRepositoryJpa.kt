@@ -15,7 +15,7 @@ interface UserRepositoryJpa : JpaRepository<User?, Int?> {
     fun findByVerificationToken(token: String): Optional<User>?
     fun findByName(name:String?): Optional<List<User>>
 
-
+    fun existsByUserName(userName: String): Boolean
 
 
     @Transactional

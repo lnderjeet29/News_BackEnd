@@ -16,6 +16,8 @@ data class User(
 
     @Column(name = "name")
     var name: String? = null,
+    @Column(name = "user_name",unique = true)
+    var userName: String? = null,
 
     @Column(name = "user_password")
     private var password: String? = null,

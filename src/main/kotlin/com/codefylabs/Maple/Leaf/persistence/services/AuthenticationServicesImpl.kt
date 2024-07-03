@@ -176,6 +176,22 @@ class AuthenticationServicesImpl(
         return data
     }
 
+    override fun isUserNameAvailable(userName:String?):Boolean{
+        if(userName.isNullOrEmpty()){
+            return false
+        }
+        return !userRepository.existsByUserName(userName.lowercase())
+    }
+
+    override fun updateUserName(userName: String?, email: String) {
+        try {
+            val user= userRepository.findByEmail(email).get()
+            user.userName=userName
+            userRepository.save(user)
+        } catch (e: Exception) {
+            throw BadApiRequest("Something went wrong!")
+        }
+    }
 
     override fun isExists(email: String?): Boolean {
         val user: Optional<User> = userRepository.findByEmail(email)

@@ -31,7 +31,7 @@ data class NewsCommentReplyDto(
 fun NewsComment.toDto(likes:Long,isCommentLikedByUser:Boolean ,isMine: Boolean, replies: List<NewsCommentReplyDto>)= NewsCommentDto(
     id = this.id,
     userId = this.user.id,
-    userName = this.user.name.toString(),
+    userName = this.user.userName ?: "",
     userProfile = this.user.profilePicture,
     content = this.content,
     createdAt = this.createdAt,

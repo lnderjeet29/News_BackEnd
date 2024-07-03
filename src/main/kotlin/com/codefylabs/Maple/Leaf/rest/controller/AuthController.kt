@@ -43,6 +43,20 @@ class AuthController(val authentictionSerives: AuthenticationServices, val jwtSe
         }
     }
 
+    @GetMapping("/user_name/check")
+    fun checkUserName(@RequestParam(name = "userName") name:String?):ResponseEntity<CommonResponse<Boolean>>{
+        return ResponseEntity.ok().body(CommonResponse(message = "UserName Availability", status = true, data = authentictionSerives.isUserNameAvailable(name)))
+    }
+    @PostMapping("/user_name/update")
+    fun updateUserName(@RequestHeader(name = "Authorization")token: String,@RequestParam(name = "userName") name:String?):ResponseEntity<CommonResponse<Nothing>>{
+        try {
+            val email = jwtServices.extractEmail(token.substring(7))?:throw BadApiRequest("User not found!")
+            authentictionSerives.updateUserName(userName = name?.lowercase(),email=email)
+            return ResponseEntity.ok().body(CommonResponse(message = "Username Update Sucssefully!", status = true))
+        } catch (e: Exception) {
+            return ResponseEntity.badRequest().body(CommonResponse(message = e.message.toString(), status = false))
+        }
+    }
 
     @GetMapping("/verify")
     fun verifyUser(@RequestParam token: String): ResponseEntity<String> {

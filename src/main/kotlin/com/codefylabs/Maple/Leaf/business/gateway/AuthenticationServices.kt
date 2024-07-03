@@ -13,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional
 interface AuthenticationServices {
     @Transactional
     fun signup(signUpRequest: SignUpRequest): User
+
+    fun isUserNameAvailable(userName:String?):Boolean
+    fun updateUserName(userName:String?,email: String)
     fun isExists(email: String?): Boolean
     fun verifyUser(token: String): Boolean
     fun signin(signinRequest: SigninRequest?): UserSession?
