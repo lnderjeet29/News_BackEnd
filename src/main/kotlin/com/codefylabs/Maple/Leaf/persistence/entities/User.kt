@@ -32,7 +32,7 @@ data class User(
     var verificationToken: String? = null,
 
     @Column(name = "forceReset")
-    var forceReset: Boolean? = false,
+    var forceReset: Boolean = false,
 
     @Column(name = "isBlocked")
     var isBlocked: Boolean = false,
@@ -49,7 +49,10 @@ data class User(
     var authProvider: AuthProvider?=null,
 
     @Column(name="profile_picture")
-    var profilePicture:String?=null
+    var profilePicture:String?=null,
+
+    @Column(name="isOnboardingSurveyUploaded")
+    var isOnboardingSurveyUploaded:Boolean=false
 
 ) : UserDetails {
     constructor() : this(

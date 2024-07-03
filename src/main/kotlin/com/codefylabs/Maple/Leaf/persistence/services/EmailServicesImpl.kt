@@ -18,7 +18,6 @@ class EmailServicesImpl(javaMailSender: JavaMailSender):EmailServices {
     }
 
     override fun sendSimpleMessage(mailBody: MailBody) {
-        logger.info("${mailBody.text} ${mailBody.subject}")
         val simpleMailMessage = SimpleMailMessage()
         simpleMailMessage.setTo(mailBody.to)
         simpleMailMessage.from = "inderjeet.yadav@codefylabs.com"
@@ -26,7 +25,6 @@ class EmailServicesImpl(javaMailSender: JavaMailSender):EmailServices {
         simpleMailMessage.text = mailBody.text
         try {
             javaMailSender.send(simpleMailMessage)
-            logger.info("Mail sent successfully to ${mailBody.to}...")
         } catch (e: MailException) {
             logger.error("Error occurred while sending mail to ${mailBody.to}: ${e.message}")
             throw RuntimeException("Failed to send mail", e)

@@ -1,19 +1,20 @@
 package com.codefylabs.Maple.Leaf.rest.controller
 
 import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
+import com.codefylabs.Maple.Leaf.business.gateway.OnBoardingService
 import com.codefylabs.Maple.Leaf.business.gateway.UserServices
 import com.codefylabs.Maple.Leaf.persistence.entities.User
+import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse
+import com.codefylabs.Maple.Leaf.rest.dto.user.ConfigDto
+import com.codefylabs.Maple.Leaf.rest.dto.user.OnBoardingDto
+import io.jsonwebtoken.security.SignatureException
 import lombok.RequiredArgsConstructor
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestPart
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 
@@ -21,7 +22,11 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
-class UserController(val jwtServices: JWTServices, val userServices: UserServices) {
+class UserController(
+    val jwtServices: JWTServices,
+    val userServices: UserServices,
+    val onBoardingService: OnBoardingService,
+    val userRepositoryJpa: UserRepositoryJpa) {
 
     var logger = LoggerFactory.getLogger(UserController::class.java)
 
@@ -61,6 +66,38 @@ class UserController(val jwtServices: JWTServices, val userServices: UserService
                 .body(CommonResponse(status = false, message = e.message ?: "Internal Error!"))
         }
 
+    }
+    @GetMapping("/config")
+    fun getConfigDetail(
+        @RequestHeader(name = "Authorization")token: String):ResponseEntity<CommonResponse<ConfigDto>>{
+        return try {
+            val userEmail = jwtServices.extractEmail(token.substring(7))?: throw BadCredentialsException("Invalid User!")
+            val user = userServices.findUser(userEmail)
+            val result= ConfigDto(isUserBlocked = user?.isBlocked!!, isUserEnabled = user?.enabled!!, isOnboardingSurveyUploaded = user?.isOnboardingSurveyUploaded!!)
+            ResponseEntity.ok().body(CommonResponse(message = "", status = true,data = result))
+        } catch (e: Exception) {
+            ResponseEntity.badRequest().body(CommonResponse(message = e.message?:"Something Went Wrong!",status = false))
+        }
+    }
+    @PostMapping("/upload-onboarding-survey")
+    fun submitSurvey(
+        @RequestHeader(name = "Authorization")token: String,
+        @RequestBody questionsAndAnswers: List<OnBoardingDto>
+    ): ResponseEntity<CommonResponse<Nothing>> {
+        return try {
+            val userEmail = jwtServices.extractEmail(token.substring(7))?: throw BadCredentialsException("Invalid User!")
+            val user= userServices.findUser(userEmail)
+            onBoardingService.saveSurveyAnswers(userId = user?.id!!, questionsAndAnswers = questionsAndAnswers)
+            user.isOnboardingSurveyUploaded=true
+            userRepositoryJpa.save(user)
+            ResponseEntity.ok().body(CommonResponse(message = "You're all set! Enjoy your personalized experience.", status = true))
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.badRequest()
+                .body(CommonResponse(message = "Please include a valid User ID token in your request.", status = false))
+        }catch (e: Exception) {
+            ResponseEntity.badRequest().body(CommonResponse(message = e.message ?: "Something Went Wrong!", status = false))
+
+        }
     }
 }
 
