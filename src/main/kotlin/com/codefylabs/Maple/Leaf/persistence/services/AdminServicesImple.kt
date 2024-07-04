@@ -28,8 +28,10 @@ class AdminServicesImpl(val userRepository: UserRepositoryJpa) : AdminServices {
     }
 
     override fun getAllData(pageNumber: Int, pageSize: Int): PaginatedResponse<UserDto> {
+        logger.info("start from top")
         val pageable: Pageable = PageRequest.of(pageNumber, pageSize)
         val page: Page<User?> = userRepository.findAll(pageable)
+        logger.info("start from end")
         return getPageResponse(page, UserDto::class.java)
     }
 

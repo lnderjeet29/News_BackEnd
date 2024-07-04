@@ -134,7 +134,7 @@ class NewsController
         }
     }
 
-    @GetMapping("/category/list")
+    @GetMapping("/categories")
     fun getListOfCategory():ResponseEntity<CommonResponse<List<String>>>{
         return try {
             val response = categoryService.getAllCategory()

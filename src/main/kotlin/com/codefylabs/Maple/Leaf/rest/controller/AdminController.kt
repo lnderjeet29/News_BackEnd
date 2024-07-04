@@ -1,17 +1,17 @@
 package com.codefylabs.Maple.Leaf.rest.controller
 
-import com.codefylabs.Maple.Leaf.business.gateway.AdminServices
-import com.codefylabs.Maple.Leaf.business.gateway.ImageUploadService
-import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
-import com.codefylabs.Maple.Leaf.business.gateway.NewsServices
+import com.codefylabs.Maple.Leaf.business.gateway.*
 import com.codefylabs.Maple.Leaf.persistence.entities.Role
 import com.codefylabs.Maple.Leaf.persistence.entities.User
+import com.codefylabs.Maple.Leaf.persistence.entities.VisaData
 import com.codefylabs.Maple.Leaf.persistence.repository.NewsRepositoryJPA
 import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.*
 import com.codefylabs.Maple.Leaf.rest.dto.news.NewsDto
 import com.codefylabs.Maple.Leaf.rest.dto.news.UploadNewsDto
+import com.codefylabs.Maple.Leaf.rest.dto.others.VisaDataDto
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -30,16 +30,17 @@ class AdminController(
     val newsServices: NewsServices,
     val newsRepositoryJPA: NewsRepositoryJPA,
     val jwtServices: JWTServices,
-    val userRepositoryJpa: UserRepositoryJpa
+    val userRepositoryJpa: UserRepositoryJpa,
+    val visaDataService: VisaDataService
 ) {
-    var logger = LoggerFactory.getLogger(AdminController::class.java)
+    var logger: Logger = LoggerFactory.getLogger(AdminController::class.java)
 
     @GetMapping("/users")
     fun getAllUserData(
         @RequestParam(value = "pageNumber", defaultValue = "0", required = false) pageNumber: Int,
         @RequestParam(value = "pageSize", defaultValue = "4", required = false) pageSize: Int
     ): ResponseEntity<CommonResponse<PaginatedResponse<UserDto>>> {
-
+        logger.info("get all data start ")
         val paginatedResponse: PaginatedResponse<UserDto> =
             adminServices.getAllData(pageNumber, pageSize)
         val commonResponse =
@@ -98,7 +99,7 @@ class AdminController(
         }
     }
 
-    @PostMapping("/news/create", consumes = ["multipart/form-data","application/octet-stream"])
+    @PostMapping("/news/create", consumes = ["multipart/form-data", "application/octet-stream"])
     fun createNews(
         @RequestPart("title") title: String?,
         @RequestPart("shortDescription") shortDescription: String?,
@@ -196,6 +197,35 @@ class AdminController(
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(CommonResponse(message = e.message ?: "Something went wrong!", status = false ))
+        }
+    }
+
+    //******Visa*******
+
+    @PostMapping("/visa/create")
+    fun storeVisaData(@RequestBody visaDataList: List<VisaDataDto>,@RequestParam(name = "category") category: String): ResponseEntity<CommonResponse<Nothing>> {
+        return try {
+            val visaEntities = visaDataList.map { dto ->
+                VisaData(
+                    title = dto.title,
+                    description = dto.description,
+                    category = category.lowercase()
+                )
+            }
+            val savedData = visaDataService.saveVisaData(visaEntities)
+            ResponseEntity.ok().body(CommonResponse(message = "Upload Successfully.",status = true))
+        } catch (e: Exception) {
+            ResponseEntity.badRequest().body(CommonResponse(message = e.message ?: "Something went wrong!",status = false))
+        }
+    }
+
+    @GetMapping("/visa/categories")
+    fun getVisaCategories(): ResponseEntity<CommonResponse<List<String>>> {
+        return try {
+            val categories = visaDataService.findDistinctCategories()
+            ResponseEntity.ok().body(CommonResponse(message = "Successfully.",status = true,data = categories))
+        } catch (e: Exception) {
+            ResponseEntity.badRequest().body(CommonResponse(message = e.message?:"Something Went Wrong!",status = false))
         }
     }
 }

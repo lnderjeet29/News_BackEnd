@@ -70,7 +70,7 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
             result= newsRepository.save(result)
             if (!categoryService.isCategoryNameExists(result.category.lowercase())){
 
-                categoryService.saveCategory(result.category)
+                categoryService.saveCategory(result.category.lowercase())
             }
             return ModelMapper().map(result,NewsDto::class.java)
         }
@@ -83,14 +83,7 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
             val pageable: Pageable = PageRequest.of(pageNumber, pageSize)
                 val newsPage=newsRepository.findAllTrending(pageable)
             val response = newsPage.map { news ->
-                val totalLikes = newsRepository.countLikesByNewsId(news.id)
-                val totalComments = newsRepository.countCommentsByNewsId(news.id)
-                val isLiked = if (userId != null) {
-                    newsRepository.isNewsLikedByUser(news.id, userId)
-                } else {
-                    false
-                }
-                news.toDto(isLiked=isLiked, commentsCount = totalComments, totalLikes = totalLikes)
+                news.toDto(isLiked=false, commentsCount = 0, totalLikes = 0)
             }
             return PaginatedResponse(
                 content = response.content,

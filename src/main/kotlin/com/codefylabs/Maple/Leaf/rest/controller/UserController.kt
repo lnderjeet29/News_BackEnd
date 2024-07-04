@@ -3,13 +3,17 @@ package com.codefylabs.Maple.Leaf.rest.controller
 import com.codefylabs.Maple.Leaf.business.gateway.JWTServices
 import com.codefylabs.Maple.Leaf.business.gateway.OnBoardingService
 import com.codefylabs.Maple.Leaf.business.gateway.UserServices
+import com.codefylabs.Maple.Leaf.business.gateway.VisaDataService
 import com.codefylabs.Maple.Leaf.persistence.entities.User
 import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
 import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse
+import com.codefylabs.Maple.Leaf.rest.dto.others.VisaDataDto
 import com.codefylabs.Maple.Leaf.rest.dto.user.ConfigDto
 import com.codefylabs.Maple.Leaf.rest.dto.user.OnBoardingDto
 import io.jsonwebtoken.security.SignatureException
 import lombok.RequiredArgsConstructor
+import org.modelmapper.ModelMapper
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -26,9 +30,11 @@ class UserController(
     val jwtServices: JWTServices,
     val userServices: UserServices,
     val onBoardingService: OnBoardingService,
-    val userRepositoryJpa: UserRepositoryJpa) {
+    val userRepositoryJpa: UserRepositoryJpa,
+    val visaDataService: VisaDataService
+) {
 
-    var logger = LoggerFactory.getLogger(UserController::class.java)
+    var logger: Logger = LoggerFactory.getLogger(UserController::class.java)
 
     @GetMapping("/info")
     fun user(@RequestHeader(name = "Authorization") token: String): ResponseEntity<CommonResponse<User>> {
@@ -99,5 +105,18 @@ class UserController(
 
         }
     }
+
+    @GetMapping("/visa")
+    fun getVisaDataByCategory(
+        @RequestParam(name = "category") category: String
+    ): ResponseEntity<CommonResponse<List<VisaDataDto>>> {
+        return try {
+            val visaDataList = visaDataService.getVisaDataByCategory(category.lowercase())
+            ResponseEntity.ok().body(CommonResponse(message = "Fetched successfully", status = true, data = visaDataList))
+        } catch (e: Exception) {
+            ResponseEntity.badRequest().body(CommonResponse(message = e.message ?: "Something went wrong!", status = false))
+        }
+    }
+
 }
 

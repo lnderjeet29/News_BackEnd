@@ -23,4 +23,5 @@ interface NewsRepositoryJPA: JpaRepository<News, Int> {
     @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM NewsLikes l WHERE l.newsPost.id = :newsId AND l.user.id = :userId")
     fun isNewsLikedByUser(@Param("newsId") newsId: Int, @Param("userId") userId: Int?): Boolean
 
+
 }

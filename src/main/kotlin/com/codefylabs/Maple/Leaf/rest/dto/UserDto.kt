@@ -15,7 +15,8 @@ data class UserDto(
     var date: LocalDate?= LocalDate.now(),
     var role: Role? = null,
     var authProvider: AuthProvider?=null,
-    var profilePicture: String?=null
+    var profilePicture: String?=null,
+    var userName:String?=null
 )
 
 //fun User.toDto()=UserDto(
