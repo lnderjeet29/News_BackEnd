@@ -19,6 +19,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.filter.CorsFilter
 
 
 @Configuration
@@ -56,6 +59,7 @@ class SecurityConfiguration(
         return provider
     }
 
+
     private fun userDetailsService(): UserDetailsService {
         return userServices?.userDetailsService() ?: defaultUserDetailsService()
     }
@@ -75,5 +79,18 @@ class SecurityConfiguration(
     @Throws(Exception::class)
     fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
         return config.authenticationManager
+    }
+
+    @Bean
+    fun corsConfigurationSource(): UrlBasedCorsConfigurationSource {
+        val source = UrlBasedCorsConfigurationSource()
+        val config = CorsConfiguration().apply {
+            allowCredentials = true
+            allowedOrigins = listOf("http://mapleleaf.codefy-testing.com", "https://mapleleaf.codefy-testing.com")
+            allowedHeaders = listOf("*")
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        }
+        source.registerCorsConfiguration("/**", config)
+        return source
     }
 }
