@@ -6,6 +6,7 @@ import com.codefylabs.Maple.Leaf.persistence.entities.AuthProvider
 
 data class UserSession (
     var userId:Int,
+    var username:String?,
     var name:String,
     var email:String,
     var profilePicture:String?,

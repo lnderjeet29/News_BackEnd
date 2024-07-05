@@ -90,7 +90,8 @@ class AuthenticationServicesImpl(
                         name = user.name.toString(),
                         userId = user.id.toString().toInt(),
                         authProvider = user.authProvider,
-                        profilePicture = user.profilePicture
+                        profilePicture = user.profilePicture,
+                        username = user.userName
 
                     )
 
@@ -135,7 +136,8 @@ class AuthenticationServicesImpl(
                     name = user.name.toString(),
                     userId = user.id.toString().toInt(),
                     authProvider = user.authProvider,
-                    profilePicture = user.profilePicture
+                    profilePicture = user.profilePicture,
+                    username = user.userName
                 )
 
                 return userSession
@@ -257,7 +259,8 @@ class AuthenticationServicesImpl(
             name = user.name.toString(),
             userId = user.id.toString().toInt(),
             authProvider = user.authProvider,
-            profilePicture = user.profilePicture
+            profilePicture = user.profilePicture,
+            username = user.userName
         )
 
         return userSession
@@ -277,7 +280,8 @@ class AuthenticationServicesImpl(
                     name = user?.name.toString(),
                     userId = user?.id.toString().toInt(),
                     authProvider = user?.authProvider,
-                    profilePicture = null
+                    profilePicture = null,
+                    username = user?.userName
                 )
             }
             return userSession
