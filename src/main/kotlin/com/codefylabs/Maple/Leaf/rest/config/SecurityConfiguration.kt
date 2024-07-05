@@ -39,7 +39,7 @@ class SecurityConfiguration(
                 requests
                     .requestMatchers(
                         "/api/v1/auth/**", "/", "/api/v1/news/**",
-                        "/api/v1/forgot-password/**", "/test"
+                        "/api/v1/forgot-password/**", "/test","/api/v1/news"
                     ).permitAll()
                     .requestMatchers("/api/v1/user").hasAuthority(Role.USER.name)
                     .requestMatchers("/api/v1/admin").hasAuthority(Role.ADMIN.name)

@@ -65,7 +65,7 @@ class UserController(
             }
             val email = jwtServices.extractEmail((token.substring(7)))
             val response = userServices.uploadProfileImage(email, profileImage)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.OK)
                 .body(CommonResponse(status = true, message = response))
         } catch (e: Exception) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

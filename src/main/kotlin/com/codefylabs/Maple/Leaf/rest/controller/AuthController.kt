@@ -27,23 +27,23 @@ class AuthController(val authentictionSerives: AuthenticationServices, val jwtSe
 
     @PostMapping("/signup")
     fun signup(@RequestBody signUpRequest: SignUpRequest): ResponseEntity<CommonResponse<String>> {
-        try {
+        return try {
             val user: User = authentictionSerives.signup(signUpRequest)
             val message = CommonResponse<String>(data = null, message = ("A verification email has been sent to your email address."), status = true)
-            return ResponseEntity<CommonResponse<String>>(message, HttpStatus.ACCEPTED)
+            ResponseEntity<CommonResponse<String>>(message, HttpStatus.ACCEPTED)
         } catch (e: BadApiRequest) {
             e.printStackTrace()
             val message = CommonResponse<String>(message = e.message ?: "user already exists...", status = false, data = null)
-            return ResponseEntity<CommonResponse<String>>(message, HttpStatus.BAD_REQUEST)
+            ResponseEntity<CommonResponse<String>>(message, HttpStatus.BAD_REQUEST)
         } catch (e: Exception) {
             e.printStackTrace()
             val message =
                 CommonResponse<String>(message = "Wrong Credential...", status = false, data = null)
-            return ResponseEntity<CommonResponse<String>>(message, HttpStatus.BAD_REQUEST)
+            ResponseEntity<CommonResponse<String>>(message, HttpStatus.BAD_REQUEST)
         }
     }
 
-    @GetMapping("/user_name/check")
+        @GetMapping("/user_name/check")
     fun checkUserName(@RequestParam(name = "userName") name:String?):ResponseEntity<CommonResponse<Boolean>>{
         return ResponseEntity.ok().body(CommonResponse(message = "UserName Availability", status = true, data = authentictionSerives.isUserNameAvailable(name)))
     }

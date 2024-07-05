@@ -99,7 +99,7 @@ class AdminController(
         }
     }
 
-    @PostMapping("/news/create", consumes = ["multipart/form-data", "application/octet-stream"])
+    @PostMapping("/news/create", consumes = ["multipart/form-data"])
     fun createNews(
         @RequestPart("title") title: String?,
         @RequestPart("shortDescription") shortDescription: String?,

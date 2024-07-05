@@ -40,9 +40,11 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
             return PageHelper.getPageResponse(newsPage, NewsDto::class.java)
         }
 
-        override fun getNewsDetail(newsId: Int): NewsDto {
+        override fun getNewsDetail(newsId: Int, authenticated:Boolean): NewsDto {
             val news = newsRepository.findById(newsId).orElseThrow{throw BadApiRequest("News not found!")}
+            if(authenticated){
             news.totalView+=1
+            }
             newsRepository.save(news)
             return ModelMapper().map(news, NewsDto::class.java)
         }
@@ -61,7 +63,7 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
                 detailImageUrl = null,
                 source = uploadNewsDto.source,
                 articleUrl = uploadNewsDto.articleUrl,
-                category = uploadNewsDto.category.toString(),
+                category = uploadNewsDto.category.toString().lowercase(),
                 isTrending = uploadNewsDto.isTrending
             )
             var result= newsRepository.save(news)

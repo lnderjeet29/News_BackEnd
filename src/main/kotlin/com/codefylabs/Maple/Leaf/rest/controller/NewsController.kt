@@ -168,10 +168,16 @@ class NewsController
     fun getNewsDetail(@RequestHeader(name = "Authorization", required = false) token: String?,@RequestParam newsId:Int)
     :ResponseEntity<CommonResponse<NewsDto>>
     {
+        var userEmail:String? = ""
         return try {
-            val newsDto= newsServices.getNewsDetail(newsId)
+            val newsDto = if(token.isNullOrEmpty()){
+            newsServices.getNewsDetail(newsId,false)
+            }else{
+                userEmail = jwtServices.extractEmail(token.substring(7))
+              newsServices.getNewsDetail(newsId,true)
+            }
             if (!token.isNullOrEmpty()) {
-                val userEmail = jwtServices.extractEmail(token.substring(7))
+
                 val userId = userRepositoryJpa.findByEmail(userEmail).get().id
                     newsDto.isLiked = likeService.isLikedByUser(userId, newsDto.id)
             }

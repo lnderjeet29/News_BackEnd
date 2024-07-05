@@ -106,9 +106,11 @@ class AuthenticationServicesImpl(
                 }
             }
         } else {
+
             val user =
                 User(
                     email = googleUser.email,
+                    userName = googleUser.email.substringBefore("@"),
                     name = googleUser.name.lowercase(),
                     role = Role.USER,
                     enabled = true,
@@ -156,12 +158,15 @@ class AuthenticationServicesImpl(
             }else{
                 userRepository.delete(user)
             }
-
+        }
+        if(!isUserNameAvailable(signUpRequest.userName)){
+            throw BadApiRequest("UserName Not Available!")
         }
         val user =
             User(
                 email = signUpRequest.email,
                 name = signUpRequest.name.lowercase(),
+                userName = signUpRequest.userName,
                 role = Role.USER,
                 enabled = false,
                 verificationToken = UUID.randomUUID().toString(),

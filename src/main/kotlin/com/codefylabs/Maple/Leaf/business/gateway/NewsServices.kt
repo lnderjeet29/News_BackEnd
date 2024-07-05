@@ -9,7 +9,7 @@ interface NewsServices {
 
     fun getNews(pageNumber:Int,pageSize:Int,category: String): PaginatedResponse<NewsDto>
 
-    fun getNewsDetail(newsId:Int):NewsDto
+    fun getNewsDetail(newsId:Int,authenticated: Boolean):NewsDto
 
     fun incrementShareCount(newsId:Int)
 
