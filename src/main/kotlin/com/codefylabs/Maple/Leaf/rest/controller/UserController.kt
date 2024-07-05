@@ -118,5 +118,15 @@ class UserController(
         }
     }
 
+    @GetMapping("/visa/categories")
+    fun getVisaCategories(): ResponseEntity<CommonResponse<List<String>>> {
+        return try {
+            val categories = visaDataService.findDistinctCategories()
+            ResponseEntity.ok().body(CommonResponse(message = "Successfully.",status = true,data = categories))
+        } catch (e: Exception) {
+            ResponseEntity.badRequest().body(CommonResponse(message = e.message?:"Something Went Wrong!",status = false))
+        }
+    }
+
 }
 
