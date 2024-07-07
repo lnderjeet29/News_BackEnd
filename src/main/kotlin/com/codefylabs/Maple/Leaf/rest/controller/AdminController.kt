@@ -107,10 +107,8 @@ class AdminController(
         @RequestPart("source") source: String?,
         @RequestPart("articleUrl") articleUrl: String?,
         @RequestPart("category") category: String?,
-        @RequestPart("isTrending") isTrending: Boolean,
-        @RequestPart("thumbnailImage") thumbnailImage: MultipartFile?,
-        @RequestPart("detailImage") detailImage: MultipartFile?
-    ): ResponseEntity<CommonResponse<NewsDto>> {
+        @RequestPart("isTrending") isTrending: Boolean
+    ): ResponseEntity<CommonResponse<Boolean>> {
         // Input validation
         try {
             requireNotNull(title) { "Title must not be empty" }
@@ -123,23 +121,6 @@ class AdminController(
             if (articleUrl.isNotEmpty() && !isValidUrl(articleUrl)) {
                 throw IllegalArgumentException("Invalid article URL format")
             }
-            // Handle file uploads
-            if (thumbnailImage == null || detailImage == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(CommonResponse(status = false, message = "Thumbnail and Detail Images are required"))
-            }
-            // Example content type validation
-            if (thumbnailImage.contentType?.startsWith("image/")==false || detailImage.contentType?.startsWith("image/")==false) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(CommonResponse(status = false, message =  "Images must be of type image/jpeg or image/png"))
-            }
-            // Example size validation (adjust size as per your requirements)
-            val maxFileSizeBytes = 10 * 1024 * 1024 // 10 MB
-            if (thumbnailImage.size > maxFileSizeBytes || detailImage.size > maxFileSizeBytes) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(CommonResponse(status = false, message = "Images should not exceed 10MB"))
-            }
-
 
             // Create DTO for service layer
             val uploadNewsDto = UploadNewsDto(
@@ -149,25 +130,68 @@ class AdminController(
                 source = source,
                 articleUrl = articleUrl,
                 isTrending = isTrending,
-                thumbnailImage = thumbnailImage,
-                detailImage = detailImage,
                 category = category
             )
             // Call service to create news
             val createdNews = newsServices.createNews(uploadNewsDto)
             // Return success response
             return ResponseEntity.status(HttpStatus.CREATED)
-                .body(CommonResponse(status = true, message =  "News created successfully", data = createdNews))
+                .body(CommonResponse(status = true, message =  "Upload successfully", data = createdNews))
         } catch (e: IllegalArgumentException) {
             // Handle validation errors
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(CommonResponse(status = false, message =  e.message ?: "Bad request" ))
+                .body(CommonResponse(status = false, message =  e.message ?: "Bad request", data = false ))
         } catch (e: Exception) {
             // Handle unexpected errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(CommonResponse(status = false, message = "Failed to create news"))
+                .body(CommonResponse(status = false, message = "Failed to create news", data = false))
         }
     }
+
+
+    @PostMapping("/upload/thumbnailImg", consumes = ["multipart/form-data", "application/octet-stream"])
+    fun uploadNewsThumbnailImg(
+        @RequestPart("thumbnailImage") thumbnailImage: MultipartFile,
+        @RequestParam(name = "news_id") newsId: Int
+    ): ResponseEntity<CommonResponse<Boolean>> {
+        // Example content type validation
+        if (thumbnailImage.contentType?.startsWith("image/")==false) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(CommonResponse(status = false, message =  "Images must be of type image/jpeg or image/png", data = false))
+        }
+// Example size validation (adjust size as per your requirements)
+        val maxFileSizeBytes = 10 * 1024 * 1024 // 10 MB
+        if (thumbnailImage.size > maxFileSizeBytes) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(CommonResponse(status = false, message = "Images should not exceed 10MB", data = false))
+        }
+        val response = newsServices.uploadThumbnailImg(thumbnailImage = thumbnailImage, newsId = newsId)
+        return ResponseEntity.ok().body(CommonResponse("Thumbnail Image Upload.",status = true, data = response))
+
+    }
+
+    @PostMapping("/upload/DetailImg", consumes = ["multipart/form-data", "application/octet-stream"])
+    fun uploadNewsDetailImg(
+        @RequestPart("DetailImage") detailImage: MultipartFile,
+        @RequestParam(name = "news_id") newsId: Int
+    ): ResponseEntity<CommonResponse<Boolean>> {
+
+        // Example content type validation
+        if (detailImage.contentType?.startsWith("image/")==false) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(CommonResponse(status = false, message =  "Images must be of type image/jpeg or image/png", data = false))
+        }
+// Example size validation (adjust size as per your requirements)
+        val maxFileSizeBytes = 10 * 1024 * 1024 // 10 MB
+        if (detailImage.size > maxFileSizeBytes) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(CommonResponse(status = false, message = "Images should not exceed 10MB", data = false))
+        }
+
+        val response = newsServices.uploadDetailImg(detailImage= detailImage, newsId = newsId)
+        return ResponseEntity.ok().body(CommonResponse("Detail Image Upload.",status = true, data = response))
+    }
+
 
     private fun isValidUrl(url: String): Boolean {
         return try {

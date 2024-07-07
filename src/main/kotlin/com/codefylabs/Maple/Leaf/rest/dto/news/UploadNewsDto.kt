@@ -9,7 +9,5 @@ data class UploadNewsDto(
     var source: String? = null,
     var articleUrl: String? = null,
     var isTrending: Boolean = false,
-    var thumbnailImage: MultipartFile,
-    var detailImage: MultipartFile,
     var category: String?=null
 )

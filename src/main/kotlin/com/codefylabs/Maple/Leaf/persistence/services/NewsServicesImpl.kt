@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 
 
 @Service
@@ -54,7 +55,7 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
              newsRepository.save(news)
          }
 
-        override fun createNews(uploadNewsDto: UploadNewsDto): NewsDto {
+        override fun createNews(uploadNewsDto: UploadNewsDto): Boolean {
             val news = News(
                 title = uploadNewsDto.title,
                 shortDescription = uploadNewsDto.shortDescription,
@@ -66,19 +67,39 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
                 category = uploadNewsDto.category.toString().lowercase(),
                 isTrending = uploadNewsDto.isTrending
             )
-            var result= newsRepository.save(news)
-            result.thumbnailUrl= imageUploadService.uploadImage(uploadNewsDto.thumbnailImage,PictureType.NEWS_THUMBNAIL,result.id.toString())
-            result.detailImageUrl= imageUploadService.uploadImage(uploadNewsDto.detailImage,PictureType.NEWS_DETAIL,result.id.toString())
-            result= newsRepository.save(result)
+            val result= newsRepository.save(news)
             if (!categoryService.isCategoryNameExists(result.category.lowercase())){
 
                 categoryService.saveCategory(result.category.lowercase())
             }
-            return ModelMapper().map(result,NewsDto::class.java)
+            return true
         }
 
         override fun deleteNews(newsId: Int): Boolean {
             TODO("Not yet implemented")
+        }
+
+        override fun uploadThumbnailImg(thumbnailImage: MultipartFile,newsId:Int):Boolean{
+            return try {
+                var result= newsRepository.findById(newsId).orElseThrow{BadApiRequest(message = "News not found!")}
+                result.thumbnailUrl=imageUploadService.uploadImage(thumbnailImage,PictureType.NEWS_THUMBNAIL,result.id.toString())
+                newsRepository.save(result)
+                true
+            } catch (e: Exception) {
+                logger.info(e.message)
+                false
+            }
+        }
+        override fun uploadDetailImg(detailImage: MultipartFile, newsId: Int):Boolean{
+            return try {
+                var result = newsRepository.findById(newsId).orElseThrow{BadApiRequest(message = "News not found!")}
+                result.detailImageUrl=imageUploadService.uploadImage(detailImage,PictureType.NEWS_DETAIL,result.id.toString())
+                newsRepository.save(result)
+                true
+            } catch (e: Exception) {
+                logger.info(e.message)
+                false
+            }
         }
 
         override fun getTrendingNews(userId:Int?,pageNumber: Int, pageSize: Int): PaginatedResponse<NewsDto> {
