@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface VisaDataRepository : JpaRepository<VisaData,Int> {
-    fun findByCategory(category: String): List<VisaData>
+    fun findByKey(category: String): List<VisaData>
 
 }
