@@ -30,8 +30,7 @@ class UserController(
     val jwtServices: JWTServices,
     val userServices: UserServices,
     val onBoardingService: OnBoardingService,
-    val userRepositoryJpa: UserRepositoryJpa,
-    val visaDataService: VisaDataService
+    val userRepositoryJpa: UserRepositoryJpa
 ) {
 
     var logger: Logger = LoggerFactory.getLogger(UserController::class.java)
@@ -106,27 +105,7 @@ class UserController(
         }
     }
 
-    @GetMapping("/visa")
-    fun getVisaDataByCategory(
-        @RequestParam(name = "category") category: String
-    ): ResponseEntity<CommonResponse<List<VisaDataDto>>> {
-        return try {
-            val visaDataList = visaDataService.getVisaDataByCategory(category.lowercase())
-            ResponseEntity.ok().body(CommonResponse(message = "Fetched successfully", status = true, data = visaDataList))
-        } catch (e: Exception) {
-            ResponseEntity.badRequest().body(CommonResponse(message = e.message ?: "Something went wrong!", status = false))
-        }
-    }
 
-    @GetMapping("/visa/categories")
-    fun getVisaCategories(): ResponseEntity<CommonResponse<List<String>>> {
-        return try {
-            val categories = visaDataService.findDistinctCategories()
-            ResponseEntity.ok().body(CommonResponse(message = "Successfully.",status = true,data = categories))
-        } catch (e: Exception) {
-            ResponseEntity.badRequest().body(CommonResponse(message = e.message?:"Something Went Wrong!",status = false))
-        }
-    }
 
 }
 

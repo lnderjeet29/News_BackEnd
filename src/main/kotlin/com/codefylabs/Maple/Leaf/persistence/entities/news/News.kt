@@ -20,8 +20,8 @@ data class News(
     @Column(name = "short_description")
     var shortDescription:String?=null,
 
-    @Column(name = "description", length = 3000)
-    @Size(max = 3000)
+    @Lob
+    @Column(name = "description")
     var description:String?=null,
 
     @Column(name = "thumbnail_url")

@@ -1,6 +1,7 @@
 package com.codefylabs.Maple.Leaf.rest.dto.news
 
 import com.codefylabs.Maple.Leaf.persistence.entities.news.News
+import jakarta.persistence.Lob
 import java.time.LocalDateTime
 
 data class NewsDto (
@@ -8,6 +9,7 @@ data class NewsDto (
     var id: Int=0,
     var title:String?=null,
     var shortDescription:String?=null,
+    @Lob
     var description:String?=null,
     var thumbnailUrl: String?=null,
     var detailImageUrl: String?=null,

@@ -22,8 +22,4 @@ class VisaDataServiceImpl(private val visaDataRepository: VisaDataRepository):Vi
             )
         }
     }
-    @Transactional(readOnly = true)
-    override fun findDistinctCategories(): List<String> {
-        return visaDataRepository.findDistinctCategories()
-    }
 }

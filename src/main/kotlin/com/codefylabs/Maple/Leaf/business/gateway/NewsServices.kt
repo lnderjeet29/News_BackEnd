@@ -14,7 +14,7 @@ interface NewsServices {
 
     fun incrementShareCount(newsId:Int)
 
-    fun createNews(uploadNewsDto: UploadNewsDto):Boolean
+    fun createNews(uploadNewsDto: UploadNewsDto):Int
     fun uploadDetailImg(detailImage: MultipartFile, newsId: Int):Boolean
     fun uploadThumbnailImg(thumbnailImage: MultipartFile,newsId:Int):Boolean
     fun deleteNews(newsId:Int):Boolean

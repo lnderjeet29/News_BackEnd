@@ -55,7 +55,7 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
              newsRepository.save(news)
          }
 
-        override fun createNews(uploadNewsDto: UploadNewsDto): Boolean {
+        override fun createNews(uploadNewsDto: UploadNewsDto): Int {
             val news = News(
                 title = uploadNewsDto.title,
                 shortDescription = uploadNewsDto.shortDescription,
@@ -72,7 +72,7 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
 
                 categoryService.saveCategory(result.category.lowercase())
             }
-            return true
+            return result.id
         }
 
         override fun deleteNews(newsId: Int): Boolean {

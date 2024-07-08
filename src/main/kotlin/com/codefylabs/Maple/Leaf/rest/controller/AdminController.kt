@@ -99,39 +99,21 @@ class AdminController(
         }
     }
 
-    @PostMapping("/news/create", consumes = ["multipart/form-data"])
-    fun createNews(
-        @RequestPart("title") title: String?,
-        @RequestPart("shortDescription") shortDescription: String?,
-        @RequestPart("description") description: String?,
-        @RequestPart("source") source: String?,
-        @RequestPart("articleUrl") articleUrl: String?,
-        @RequestPart("category") category: String?,
-        @RequestPart("isTrending") isTrending: Boolean
-    ): ResponseEntity<CommonResponse<Boolean>> {
+    @PostMapping("/news/create")
+    fun createNews(@RequestBody uploadNewsDto: UploadNewsDto): ResponseEntity<CommonResponse<Int>> {
         // Input validation
         try {
-            requireNotNull(title) { "Title must not be empty" }
-            requireNotNull(shortDescription) { "Short description must not be empty" }
-            requireNotNull(description) { "Description must not be empty" }
-            requireNotNull(source) { "Source must not be empty" }
-            requireNotNull(category) { "Category must not be empty" }
-            requireNotNull(articleUrl) { "Article URL must not be empty" }
+            requireNotNull(uploadNewsDto.title) { "Title must not be empty" }
+            requireNotNull(uploadNewsDto.shortDescription) { "Short description must not be empty" }
+            requireNotNull(uploadNewsDto.description) { "Description must not be empty" }
+            requireNotNull(uploadNewsDto.source) { "Source must not be empty" }
+            requireNotNull(uploadNewsDto.category) { "Category must not be empty" }
+            requireNotNull(uploadNewsDto.articleUrl) { "Article URL must not be empty" }
             // Validate articleUrl format if provided
-            if (articleUrl.isNotEmpty() && !isValidUrl(articleUrl)) {
+            if (uploadNewsDto.articleUrl!!.isNotEmpty() && !isValidUrl(uploadNewsDto.articleUrl!!)) {
                 throw IllegalArgumentException("Invalid article URL format")
             }
 
-            // Create DTO for service layer
-            val uploadNewsDto = UploadNewsDto(
-                title = title,
-                shortDescription = shortDescription,
-                description = description,
-                source = source,
-                articleUrl = articleUrl,
-                isTrending = isTrending,
-                category = category
-            )
             // Call service to create news
             val createdNews = newsServices.createNews(uploadNewsDto)
             // Return success response
@@ -140,16 +122,16 @@ class AdminController(
         } catch (e: IllegalArgumentException) {
             // Handle validation errors
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(CommonResponse(status = false, message =  e.message ?: "Bad request", data = false ))
+                .body(CommonResponse(status = false, message =  e.message ?: "Bad request" ))
         } catch (e: Exception) {
             // Handle unexpected errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(CommonResponse(status = false, message = "Failed to create news", data = false))
+                .body(CommonResponse(status = false, message = "Failed to create news"))
         }
     }
 
 
-    @PostMapping("/upload/thumbnailImg", consumes = ["multipart/form-data", "application/octet-stream"])
+    @PostMapping("/upload/thumbnailImg")
     fun uploadNewsThumbnailImg(
         @RequestPart("thumbnailImage") thumbnailImage: MultipartFile,
         @RequestParam(name = "news_id") newsId: Int
@@ -224,32 +206,6 @@ class AdminController(
         }
     }
 
-    //******Visa*******
 
-    @PostMapping("/visa/create")
-    fun storeVisaData(@RequestBody visaDataList: List<VisaDataDto>,@RequestParam(name = "category") category: String): ResponseEntity<CommonResponse<Nothing>> {
-        return try {
-            val visaEntities = visaDataList.map { dto ->
-                VisaData(
-                    title = dto.title,
-                    description = dto.description,
-                    category = category.lowercase()
-                )
-            }
-            val savedData = visaDataService.saveVisaData(visaEntities)
-            ResponseEntity.ok().body(CommonResponse(message = "Upload Successfully.",status = true))
-        } catch (e: Exception) {
-            ResponseEntity.badRequest().body(CommonResponse(message = e.message ?: "Something went wrong!",status = false))
-        }
-    }
 
-    @GetMapping("/visa/categories")
-    fun getVisaCategories(): ResponseEntity<CommonResponse<List<String>>> {
-        return try {
-            val categories = visaDataService.findDistinctCategories()
-            ResponseEntity.ok().body(CommonResponse(message = "Successfully.",status = true,data = categories))
-        } catch (e: Exception) {
-            ResponseEntity.badRequest().body(CommonResponse(message = e.message?:"Something Went Wrong!",status = false))
-        }
-    }
 }
