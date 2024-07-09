@@ -19,18 +19,19 @@ class VisaController(
     val visaDataService: VisaDataService
 ) {
 
-//    @GetMapping("/visa")
-//    fun getVisaDataByCategory(
-//        @RequestParam(name = "category") category: String
-//    ): ResponseEntity<CommonResponse<List<VisaDataDto>>> {
-//        return try {
-//            val faqs = visaDataService.getVisaDataByCategory(category.trim().lowercase()).map {it.toDto()}
-//            ResponseEntity.ok().body(CommonResponse(message = "FAQs retrieved successfully", status = true, data = faqs))
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            ResponseEntity.badRequest().body(CommonResponse(message = e.message ?: "Something went wrong!", status = false))
-//        }
-//    }
+    @GetMapping("/visa")
+    fun getVisaDataByCategory(
+        @RequestParam(name = "category") category: String
+    ): ResponseEntity<CommonResponse<List<VisaDataDto>>> {
+        return try {
+            val faqs = visaDataService.getVisaDataByCategory(category.trim().lowercase()).map {it.toDto()}
+            ResponseEntity.ok().body(CommonResponse(message = "FAQs retrieved successfully", status = true, data = faqs))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ResponseEntity.badRequest().body(CommonResponse(message = e.message ?: "Something went wrong!", status = false))
+        }
+    }
+
     @PostMapping("/admin/visa/create")
     fun storeVisaData(
         @RequestBody visaDataList: VisaDataDto,

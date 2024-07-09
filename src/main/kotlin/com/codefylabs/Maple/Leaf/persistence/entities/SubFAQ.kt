@@ -14,14 +14,3 @@ data class SubFAQ(
         answer=""
     )
 }
-@Embeddable
-data class SubVisa(
-    val question: String,
-    @Lob
-    val answer: String
-){
-    constructor():this(
-        question="",
-        answer=""
-    )
-}

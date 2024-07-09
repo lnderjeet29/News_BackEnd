@@ -30,8 +30,7 @@ class AdminController(
     val newsServices: NewsServices,
     val newsRepositoryJPA: NewsRepositoryJPA,
     val jwtServices: JWTServices,
-    val userRepositoryJpa: UserRepositoryJpa,
-    val visaDataService: VisaDataService
+    val userRepositoryJpa: UserRepositoryJpa
 ) {
     var logger: Logger = LoggerFactory.getLogger(AdminController::class.java)
 

@@ -105,7 +105,7 @@ class NewsServicesImpl(val newsRepository: NewsRepositoryJPA,
         @Transactional(readOnly = true)
         override fun getTrendingNews(userId:Int?,pageNumber: Int, pageSize: Int): PaginatedResponse<NewsDto> {
             val pageable: Pageable = PageRequest.of(pageNumber, pageSize)
-                val newsPage=newsRepository.findAllTrending(pageable)
+            val newsPage=newsRepository.findAllTrending(pageable)
             val response = newsPage.map { news ->
                 news.toDto(isLiked=false, commentsCount = 0, totalLikes = 0)
             }

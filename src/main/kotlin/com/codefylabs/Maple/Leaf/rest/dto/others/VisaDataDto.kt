@@ -7,11 +7,10 @@ data class VisaDataDto(
     var title: String,
     @Lob
     var content: String,
-    val subVisaData: List<SubVisaDataDto>
+    val subVisaData: List<subVisaDataDto>
 )
-data class SubVisaDataDto(
+data class subVisaDataDto(
     var question: String,
-    @Lob
     var answer: String
 )
 
@@ -19,6 +18,8 @@ fun VisaData.toDto(): VisaDataDto {
     return VisaDataDto(
         title = this.title,
         content = this.content,
-        subVisaData = this.subVisa.map { SubVisaDataDto(question = it.question, answer = it.answer) }
+        subVisaData =this.subVisa.map {
+            subVisaDataDto(question = it.question, answer = it.answer)
+        }
     )
 }
