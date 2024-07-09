@@ -19,10 +19,10 @@ class FAQController(val faqService: FAQService) {
     fun getFAQsByCategoryAndSubCategory(
         @RequestParam category: String,
         @RequestParam subCategory: String
-    ): ResponseEntity<CommonResponse<List<FAQDto>>> {
+    ): ResponseEntity<CommonResponse<FAQDto>> {
         return try {
             val faqs = faqService.getFAQsByCategoryAndSubCategory(category.trim().lowercase(), subCategory.trim().lowercase()).map { it.toDto() }
-            ResponseEntity.ok(CommonResponse(message = "FAQs retrieved successfully", status = true, data = faqs))
+            ResponseEntity.ok(CommonResponse(message = "FAQs retrieved successfully", status = true, data = faqs[0]))
         } catch (e: Exception) {
             ResponseEntity.ok(CommonResponse(message = "Something went wrong.", status = false))
         }
