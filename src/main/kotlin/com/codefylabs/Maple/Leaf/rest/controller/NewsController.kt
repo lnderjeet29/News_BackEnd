@@ -158,6 +158,7 @@ class NewsController
             val response = newsServices.getTrendingNews(userId = null,pageNumber=pageNumber,pageSize=pageSize)
             ResponseEntity.ok().body(CommonResponse(message = "Trending news retrieved successfully!", status = true, data = response))
         } catch (e: Exception) {
+            e.printStackTrace()
             ResponseEntity.ok().body(CommonResponse(message = e.message ?: "Something went wrong!", status = true, data = null))
         }
     }

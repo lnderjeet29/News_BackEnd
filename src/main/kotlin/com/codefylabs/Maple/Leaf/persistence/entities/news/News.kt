@@ -56,10 +56,10 @@ data class News(
     @Column(name="is_trending")
     var isTrending:Boolean=false,
 
-    @OneToMany(mappedBy = "news", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "news", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var comments: MutableList<NewsComment> = mutableListOf(),
 
-    @OneToMany(mappedBy = "newsPost", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "newsPost", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var likes: MutableList<NewsLikes> = mutableListOf()
 
 ){
