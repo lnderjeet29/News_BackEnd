@@ -48,4 +48,11 @@ class UserServicesImpl(val userRepository: UserRepositoryJpa,
             return "Successfully Uploaded."
     }
 
+    override fun updateName(email: String, name: String): Boolean {
+        var user= userRepository.findByEmail(email).orElseThrow{BadApiRequest("User not found.")}
+        user.name=name
+        userRepository.save(user)
+        return true
+    }
+
 }

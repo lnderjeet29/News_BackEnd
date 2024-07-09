@@ -14,3 +14,4 @@ data class UserSession (
     var refreshToken:String,
     var authProvider: AuthProvider?
 )
+

@@ -6,6 +6,7 @@ import com.codefylabs.Maple.Leaf.business.gateway.UserServices
 import com.codefylabs.Maple.Leaf.business.gateway.VisaDataService
 import com.codefylabs.Maple.Leaf.persistence.entities.User
 import com.codefylabs.Maple.Leaf.persistence.repository.UserRepositoryJpa
+import com.codefylabs.Maple.Leaf.rest.ExceptionHandler.BadApiRequest
 import com.codefylabs.Maple.Leaf.rest.dto.CommonResponse
 import com.codefylabs.Maple.Leaf.rest.dto.others.VisaDataDto
 import com.codefylabs.Maple.Leaf.rest.dto.user.ConfigDto
@@ -70,8 +71,21 @@ class UserController(
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(CommonResponse(status = false, message = e.message ?: "Internal Error!"))
         }
-
     }
+    @PutMapping("/update/name")
+    fun updateProfile(
+        @RequestHeader(name = "Authorization") token: String,
+        @RequestParam(name="name") name:String
+    ):ResponseEntity<CommonResponse<Boolean>>{
+        return try {
+            val email= jwtServices.extractEmail(token.substring(7))?: throw (BadApiRequest("User not found."))
+            val response= userServices.updateName(email=email,name= name)
+            ResponseEntity.badRequest().body(CommonResponse(message = "Name Update successfully.",status = true,data = response))
+        } catch (e: Exception) {
+            ResponseEntity.badRequest().body(CommonResponse(message = e.message ?:"Something went wrong",status = false,data = false))
+        }
+    }
+
     @GetMapping("/config")
     fun getConfigDetail(
         @RequestHeader(name = "Authorization")token: String):ResponseEntity<CommonResponse<ConfigDto>>{

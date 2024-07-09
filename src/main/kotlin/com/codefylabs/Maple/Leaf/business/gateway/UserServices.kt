@@ -10,4 +10,6 @@ interface UserServices {
     fun findUser(username: String?): User?
 
     fun uploadProfileImage(email:String?,profileImage:MultipartFile):String
+
+    fun updateName(email: String,name:String):Boolean
 }
