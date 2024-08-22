@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.codefylabs</groupId>
-	<artifactId>Maple-Leaf</artifactId>
+	<artifactId>News</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Maple-Leaf</name>
 	<description>codefylabs project</description>
