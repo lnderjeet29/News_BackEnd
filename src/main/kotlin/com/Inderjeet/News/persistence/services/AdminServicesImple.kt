@@ -18,11 +18,11 @@ class AdminServicesImpl(val userRepository: UserRepositoryJpa) : AdminServices {
     val logger:Logger = LoggerFactory.getLogger(AdminServicesImpl::class.java)
     override fun searchByUserEmail(email: String?): User {
 
-        return userRepository.findByEmail(email).orElseThrow { BadApiRequest("user not found...") }
+        return userRepository.findByEmail(email).orElseThrow { BadApiRequest("User not found...") }
     }
 
     override fun searchByName(name: String?): List<User>? {
-        return userRepository.findByName(name).orElseThrow{BadApiRequest("user not found...")}
+        return userRepository.findByName(name).orElseThrow{BadApiRequest("User not found...")}
     }
 
     override fun getAllData(pageNumber: Int, pageSize: Int): com.Inderjeet.News.rest.dto.PaginatedResponse<UserDto> {
